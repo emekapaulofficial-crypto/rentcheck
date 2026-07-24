@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentCheck NG | Know before you pay</title>
+<meta name="description" content="Report a bad rental agent and browse real apartment listings in Nigeria — before you lose money.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23EFEBE1' stroke='%231F5D50' stroke-width='6'/%3E%3Ctext x='50' y='66' font-size='50' text-anchor='middle' fill='%231F5D50' font-family='monospace'%3E%E2%9C%93%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<style>
+:root{
+  --paper:#EFEBE1;
+  --paper-raised:#F7F4EC;
+  --ink:#20261F;
+  --ink-soft:#4B5347;
+  --verified:#1F5D50;
+  --verified-soft:#E4EEE9;
+  --alert:#B5502B;
+  --alert-soft:#F5E4DB;
+  --brass:#B4893A;
+  --line:#D8D0BE;
+  --stamp-red:#9C3B2B;
+  --radius:2px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans', sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  line-height:1.1;
+}
+.mono{font-family:'IBM Plex Mono', monospace;}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.72rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--verified);
+  display:flex; align-items:center; gap:8px;
+}
+.eyebrow::before{content:''; width:16px; height:1px; background:var(--verified);}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky; top:0; z-index:50;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+}
+.nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 24px;
+}
+.logo{
+  font-family:'Fraunces', serif; font-weight:700; font-size:1.25rem;
+  display:flex; align-items:center; gap:8px;
+}
+.logo .stamp{
+  width:26px; height:26px; border:1.5px solid var(--verified);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; color:var(--verified); font-family:'IBM Plex Mono';
+  transform:rotate(-8deg);
+}
+.nav-links{display:flex; gap:28px; font-size:0.92rem; font-weight:500;}
+.nav-links a{color:var(--ink-soft); transition:color .2s;}
+.nav-links a:hover{color:var(--verified);}
+.nav-join{display:flex; gap:10px; align-items:center;}
+.nav-join a{
+  padding:9px 16px; border-radius:var(--radius); font-weight:600; font-size:0.84rem;
+  display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+}
+.nav-join .join-agent{background:var(--verified); color:#fff;}
+.nav-join .join-renter{background:transparent; color:var(--ink); border:1px solid var(--ink);}
+.hamburger{display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:6px; z-index:60;}
+.hamburger span{width:22px; height:2px; background:var(--ink); transition:transform .2s ease, opacity .2s ease;}
+.hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.active span:nth-child(2){opacity:0;}
+.hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-menu{
+  display:none; flex-direction:column; gap:2px;
+  background:var(--paper); border-bottom:1px solid var(--line);
+  padding:8px 24px 20px;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  padding:14px 4px; font-size:1rem; font-weight:500; color:var(--ink-soft);
+  border-bottom:1px dashed var(--line);
+}
+.mobile-menu a:last-child{border-bottom:none;}
+
+/* ===== HERO ===== */
+.hero{
+  padding:72px 0 56px;
+  border-bottom:1px solid var(--line);
+}
+.hero-grid{
+  display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center;
+}
+.hero h1{font-size:3.1rem; margin:18px 0 20px;}
+.hero h1 em{font-style:normal; color:var(--stamp-red);}
+.hero p.lede{font-size:1.1rem; color:var(--ink-soft); max-width:46ch; margin-bottom:32px;}
+.hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 24px; border-radius:var(--radius); font-weight:600; font-size:0.95rem;
+  border:1px solid transparent; transition:transform .15s ease; cursor:pointer;
+}
+.btn:hover{transform:translateY(-2px);}
+.btn-primary{background:var(--verified); color:#fff;}
+.btn-secondary{background:transparent; color:var(--ink); border-color:var(--ink);}
+.btn-report{background:var(--stamp-red); color:#fff;}
+
+/* case-file card in hero */
+.case-card{
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  padding:26px;
+  position:relative;
+  box-shadow:6px 6px 0 var(--line);
+}
+.case-card .row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 0; border-bottom:1px dashed var(--line);
+  font-size:0.9rem;
+}
+.case-card .row:last-child{border-bottom:none;}
+.tag{
+  font-family:'IBM Plex Mono'; font-size:0.68rem; letter-spacing:.06em;
+  padding:4px 9px; border-radius:20px; text-transform:uppercase; font-weight:500;
+}
+.tag.verified{background:var(--verified-soft); color:var(--verified);}
+.tag.reported{background:var(--alert-soft); color:var(--alert);}
+.stamp-mark{
+  position:absolute; top:-14px; right:20px;
+  border:2px solid var(--stamp-red); color:var(--stamp-red);
+  font-family:'IBM Plex Mono'; font-size:0.7rem; font-weight:600;
+  padding:6px 12px; transform:rotate(6deg); background:var(--paper);
+  letter-spacing:.08em;
+}
+
+/* ===== PROBLEM STRIP ===== */
+.problem{padding:64px 0; border-bottom:1px solid var(--line);}
+.problem h2{font-size:2rem; max-width:20ch; margin-bottom:12px;}
+.problem > .wrap > p{color:var(--ink-soft); max-width:60ch; margin-bottom:40px;}
+.clip-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+.clip{
+  background:var(--paper-raised); border:1px solid var(--line); padding:24px;
+  border-left:3px solid var(--stamp-red);
+}
+.clip .num{font-family:'IBM Plex Mono'; color:var(--stamp-red); font-size:0.78rem; margin-bottom:10px; display:block;}
+.clip p{font-size:0.95rem; color:var(--ink-soft);}
+
+/* ===== HOW IT WORKS ===== */
+.how{padding:64px 0; border-bottom:1px solid var(--line);}
+.how h2{font-size:2rem; margin-bottom:40px;}
+.steps{display:grid; grid-template-columns:repeat(3,1fr); gap:32px;}
+.step{position:relative; padding-left:52px;}
+.step .step-num{
+  position:absolute; left:0; top:0;
+  width:38px; height:38px; border:1.5px solid var(--verified); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono'; color:var(--verified); font-weight:500;
+}
+.step h3{font-size:1.15rem; margin-bottom:8px;}
+.step p{font-size:0.92rem; color:var(--ink-soft);}
+
+/* ===== SEARCH / FILTER BAR ===== */
+.filter-bar{
+  display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+  margin-bottom:24px; padding:16px; background:var(--paper-raised);
+  border:1px solid var(--line);
+}
+.filter-bar select, .filter-bar input[type="text"]{
+  padding:11px 14px; border:1px solid var(--line); background:var(--paper);
+  font-family:'IBM Plex Sans'; font-size:0.9rem; color:var(--ink);
+  border-radius:var(--radius); min-width:160px;
+}
+.filter-bar input[type="text"]{flex:1; min-width:200px;}
+.filter-bar button{
+  padding:11px 20px; background:var(--verified); color:#fff; border:none;
+  border-radius:var(--radius); font-weight:600; font-size:0.9rem; cursor:pointer;
+}
+.filter-bar button:hover{opacity:0.92;}
+.state-count{font-size:0.82rem; color:var(--ink-soft); margin-bottom:16px;}
+.loading-row{padding:24px; text-align:center; color:var(--ink-soft); font-size:0.9rem; grid-column:1/-1;}
+.empty-row{padding:32px 24px; text-align:center; color:var(--ink-soft); background:var(--paper-raised); border:1px dashed var(--line); grid-column:1/-1;}
+
+/* ===== APARTMENT LISTINGS ===== */
+.apartments{padding:64px 0; border-bottom:1px solid var(--line);}
+.apartments h2{font-size:2rem; margin-bottom:8px;}
+.apartments > .wrap > p{color:var(--ink-soft); margin-bottom:24px; max-width:60ch;}
+.property-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:24px; margin-top:8px;
+}
+.property-card{
+  background:var(--paper-raised); border:1px solid var(--line);
+  overflow:hidden; display:flex; flex-direction:column;
+}
+.property-photo{
+  width:100%; aspect-ratio:4/3; object-fit:cover; background:var(--line);
+  display:block;
+}
+.property-photo-placeholder{
+  width:100%; aspect-ratio:4/3; background:var(--line);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ink-soft); font-size:1.6rem;
+}
+.property-body{padding:16px 18px; display:flex; flex-direction:column; gap:8px; flex:1;}
+.property-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+.property-body h4{font-size:1.05rem;}
+.property-body .loc{font-size:0.85rem; color:var(--ink-soft);}
+.property-meta{display:flex; gap:14px; font-size:0.82rem; color:var(--ink-soft); font-family:'IBM Plex Mono';}
+.property-rent{font-family:'IBM Plex Mono'; font-weight:600; font-size:1.1rem; color:var(--verified); margin-top:4px;}
+.property-fees{font-size:0.78rem; color:var(--ink-soft); line-height:1.5;}
+.property-footer{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:auto; padding-top:10px; border-top:1px dashed var(--line);
+}
+.property-agent{font-size:0.82rem; color:var(--ink-soft);}
+.property-contact{
+  background:var(--verified); color:#fff; padding:8px 14px; border-radius:var(--radius);
+  font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:6px;
+}
+
+/* ===== REPORT AN AGENT ===== */
+.report{padding:64px 0; border-bottom:1px solid var(--line); background:var(--paper-raised);}
+.report-box{
+  display:flex; align-items:center; justify-content:space-between; gap:24px;
+  background:var(--paper); border:1px solid var(--line); padding:36px; flex-wrap:wrap;
+}
+.report-box h2{font-size:1.7rem; margin-bottom:8px;}
+.report-box p{color:var(--ink-soft); max-width:50ch;}
+.report-box .btn-report{font-size:1rem; padding:16px 28px;}
+
+/* ===== DISCLAIMER ===== */
+.disclaimer{padding:40px 0; border-bottom:1px solid var(--line);}
+.disclaimer-box{
+  border:1px solid var(--brass); background:#FBF6E9; padding:22px 26px;
+  font-size:0.88rem; color:var(--ink-soft); display:flex; gap:14px;
+}
+.disclaimer-box i{color:var(--brass); font-size:1.2rem; margin-top:2px;}
+
+/* ===== COMMUNITY CTA ===== */
+.community{padding:72px 0; text-align:center;}
+.community h2{font-size:2.1rem; margin-bottom:14px;}
+.community p{color:var(--ink-soft); max-width:52ch; margin:0 auto 30px;}
+.community .btn{margin:0 6px;}
+
+/* ===== FOOTER ===== */
+footer{border-top:1px solid var(--line); padding:32px 0; font-size:0.85rem; color:var(--ink-soft);}
+.footer-row{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;}
+.footer-links a{margin-left:18px;}
+.footer-links a:hover{color:var(--verified);}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:860px){
+  .hero-grid{grid-template-columns:1fr;}
+  .clip-grid{grid-template-columns:1fr;}
+  .steps{grid-template-columns:1fr; gap:36px;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .report-box{flex-direction:column; align-items:flex-start;}
+}
+@media(min-width:861px){
+  .mobile-menu{display:none !important;}
+}
+@media(max-width:480px){
+  .hero h1{font-size:2.3rem;}
+  .nav-join a{padding:8px 10px; font-size:0.72rem;}
+  .nav-join a i{display:none;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none !important;}
+}
+:focus-visible{outline:2px solid var(--verified); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav wrap">
+    <a href="#home" class="logo"><span class="stamp">✓</span> RentCheck<span style="color:var(--stamp-red)">NG</span></a>
+    <nav class="nav-links">
+      <a href="#problem">Why this exists</a>
+      <a href="#how">How it works</a>
+      <a href="#apartments">Browse apartments</a>
+      <a href="#report">Report an agent</a>
+    </nav>
+    <div class="nav-join">
+      <a href="https://chat.whatsapp.com/LxyniZizP6wIeFq3Gzbt5H" target="_blank" rel="noopener" class="join-agent"><i class="fa-brands fa-whatsapp"></i> Join as Agent</a>
+      <a href="https://chat.whatsapp.com/FMQ6csgmYEA095G1xKjcC0" target="_blank" rel="noopener" class="join-renter"><i class="fa-brands fa-whatsapp"></i> Join as Renter</a>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="#problem">Why this exists</a>
+    <a href="#how">How it works</a>
+    <a href="#apartments">Browse apartments</a>
+    <a href="#report">Report an agent</a>
+  </nav>
+</header>
+
+<section class="hero" id="home">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Built for Nigerian renters</span>
+      <h1>Know before <em>you pay.</em></h1>
+      <p class="lede">Browse real apartment listings from verified community agents, and report any agent who tries to defraud you — before the next renter falls for it too.</p>
+      <div class="hero-actions">
+        <a href="#apartments" class="btn btn-primary"><i class="fa-solid fa-house"></i> Browse apartments</a>
+        <a href="#report" class="btn btn-secondary">Report an agent</a>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="stamp-mark">CASE FILE</div>
+      <div class="row"><span>Agent — Yaba, Lagos</span><span class="tag verified">Verified</span></div>
+      <div class="row"><span>Agent — Lekki Phase 1</span><span class="tag reported">3 reports</span></div>
+      <div class="row"><span>Agent — Gwarinpa, Abuja</span><span class="tag verified">Verified</span></div>
+      <div class="row"><span>Agent — Trans Amadi, PH</span><span class="tag reported">1 report</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="problem" id="problem">
+  <div class="wrap">
+    <span class="eyebrow">The problem</span>
+    <h2>Renting in Nigeria shouldn't feel like a gamble.</h2>
+    <p>Every year, thousands of Nigerians lose money to fake agents, inflated "agreement fees," and apartments that don't match what was promised.</p>
+    <div class="clip-grid">
+      <div class="clip">
+        <span class="num">01</span>
+        <p>Agents who collect "inspection fees" or "agreement fees" then disappear, or show a property that was never actually available.</p>
+      </div>
+      <div class="clip">
+        <span class="num">02</span>
+        <p>No way to compare listings side by side — renters often deal with a single agent and have nothing to check the offer against.</p>
+      </div>
+      <div class="clip">
+        <span class="num">03</span>
+        <p>Hidden issues — flooding, noise, disputed ownership — that only surface after money has changed hands.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <span class="eyebrow">How it works</span>
+    <h2>Two things. No app to download.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Browse real listings</h3>
+        <p>See apartments from community agents by state, with full pricing broken down — no surprise fees when you show up.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Report a bad agent</h3>
+        <p>If an agent defrauds you or wastes your time, one tap sends the details straight to us on WhatsApp.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>We act on it</h3>
+        <p>Repeated reports get an agent flagged and pulled from future listings — protecting the next renter.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="apartments" id="apartments">
+  <div class="wrap">
+    <span class="eyebrow">Live listings</span>
+    <h2>Browse apartments</h2>
+    <p>Real listings from agents in the community, with full pricing broken down — no surprise fees when you show up.</p>
+
+    <div class="filter-bar">
+      <select id="propStateFilter"><option value="">All states</option></select>
+      <input type="text" id="propAreaFilter" placeholder="Search area (e.g. Yaba, Gwarinpa)">
+      <button onclick="renderPropertyList()">Search</button>
+    </div>
+    <p class="state-count" id="propResultCount"></p>
+
+    <div class="property-grid" id="propertyGrid">
+      <div class="loading-row">Loading apartment listings…</div>
+    </div>
+  </div>
+</section>
+
+<section class="report" id="report">
+  <div class="wrap">
+    <div class="report-box">
+      <div>
+        <span class="eyebrow">Something went wrong?</span>
+        <h2>Report an agent</h2>
+        <p>Tell us the agent's name, phone number, and what happened. It goes straight to our WhatsApp — no form, no waiting.</p>
+      </div>
+      <a class="btn btn-report" id="reportAgentBtn" href="#" target="_blank" rel="noopener">
+        <i class="fa-brands fa-whatsapp"></i> Report an agent on WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="disclaimer">
+  <div class="wrap">
+    <div class="disclaimer-box">
+      <i class="fa-solid fa-circle-info"></i>
+      <p>RentCheck NG is a community-run initiative. Listings are submitted by agents and reports are submitted by renters — we do our best to keep things honest, but always inspect a property in person and avoid paying in full before you've verified it yourself.</p>
+    </div>
+  </div>
+</section>
+
+<section class="community">
+  <div class="wrap">
+    <span class="eyebrow">Join the community</span>
+    <h2>Renting is safer together.</h2>
+    <p>Join our WhatsApp community to see new listings first, ask questions, and warn others about bad agents in real time.</p>
+    <a href="https://chat.whatsapp.com/FMQ6csgmYEA095G1xKjcC0" target="_blank" rel="noopener" class="btn btn-primary"><i class="fa-brands fa-whatsapp"></i> Join as a Renter</a>
+    <a href="https://chat.whatsapp.com/LxyniZizP6wIeFq3Gzbt5H" target="_blank" rel="noopener" class="btn btn-secondary"><i class="fa-brands fa-whatsapp"></i> Join as an Agent</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>&copy; <span id="year"></span> RentCheck NG. Built for Nigerian renters.</span>
+    <div class="footer-links">
+      <a href="#problem">Why this exists</a>
+      <a href="#apartments">Apartments</a>
+      <a href="#report">Report</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   ADMIN SETUP — SheetDB connection
+   ---------------------------------------------------------
+   1. Go to https://sheetdb.io and sign in with Google
+   2. Connect your "RentCheck NG Database" Google Sheet
+   3. Make sure it points at the "PropertyListings" tab
+   4. SheetDB gives you an API link like:
+      https://sheetdb.io/api/v1/xxxxxxxxxxxx
+   5. Paste that link below, replacing the placeholder text
+   ========================================================= */
+const SHEETDB_API_URL = "https://sheetdb.io/api/v1/3euuodhrds5n8";
+const REPORT_WHATSAPP_NUMBER = "2348066966747";
+
+let allProperties = [];
+
+function naira(n){
+  const num = Number(String(n).replace(/[^0-9.]/g,""));
+  if(!num && num !== 0) return n || "—";
+  return "₦" + num.toLocaleString("en-NG");
+}
+
+function populateStateOptions(properties){
+  const select = document.getElementById("propStateFilter");
+  const states = [...new Set(properties.map(p => (p.State || "").trim()).filter(Boolean))].sort();
+  states.forEach(state => {
+    const opt = document.createElement("option");
+    opt.value = state;
+    opt.textContent = state;
+    select.appendChild(opt);
+  });
+}
+
+function propertyCard(p){
+  const photo = (p["Photo URL 1"] || "").trim();
+  const rent = naira(p["Rent Per Year (₦)"]);
+  const agencyFee = p["Agency Fee (₦)"] ? naira(p["Agency Fee (₦)"]) : null;
+  const cautionFee = p["Caution Fee (₦)"] ? naira(p["Caution Fee (₦)"]) : null;
+  const legalFee = p["Legal Fee (₦)"] ? naira(p["Legal Fee (₦)"]) : null;
+  const feesParts = [];
+  if(agencyFee) feesParts.push("Agency: " + agencyFee);
+  if(cautionFee) feesParts.push("Caution: " + cautionFee);
+  if(legalFee) feesParts.push("Legal: " + legalFee);
+
+  const agentName = p["Agent Name"] || "Agent";
+  const agentPhone = (p["Agent Phone (WhatsApp)"] || "").replace(/[^0-9]/g,"");
+  const waMsg = encodeURIComponent(`Hi ${agentName}, I saw "${p["Property Name"] || "your listing"}" on RentCheck NG and I'm interested.`);
+  const waLink = agentPhone ? `https://wa.me/${agentPhone}?text=${waMsg}` : "#";
+
+  return `
+    <div class="property-card">
+      ${photo ? `<img class="property-photo" src="${photo}" alt="${p["Property Name"] || "Apartment photo"}" loading="lazy" onerror="this.src='';this.classList.add('property-photo-placeholder');this.alt='';">`
+                : `<div class="property-photo-placeholder"><i class="fa-solid fa-image"></i></div>`}
+      <div class="property-body">
+        <div class="property-top">
+          <h4>${p["Property Name"] || "Untitled property"}</h4>
+        </div>
+        <p class="loc"><i class="fa-solid fa-location-dot"></i> ${p["Area / Neighbourhood"] || ""}${p["Area / Neighbourhood"] && p.State ? ", " : ""}${p.State || ""}</p>
+        <div class="property-meta">
+          ${p["Property Type"] ? `<span>${p["Property Type"]}</span>` : ""}
+          ${p.Bedrooms ? `<span>${p.Bedrooms} bed</span>` : ""}
+        </div>
+        <div class="property-rent">${rent} <span style="font-size:0.7rem;color:var(--ink-soft);font-weight:400;">/ year</span></div>
+        ${feesParts.length ? `<div class="property-fees">${feesParts.join(" &nbsp;·&nbsp; ")}</div>` : ""}
+        ${p["Short Description"] ? `<p class="property-fees">${p["Short Description"]}</p>` : ""}
+        <div class="property-footer">
+          <span class="property-agent">${agentName}</span>
+          <a class="property-contact" href="${waLink}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Contact</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderPropertyList(){
+  const grid = document.getElementById("propertyGrid");
+  const countEl = document.getElementById("propResultCount");
+  const stateVal = document.getElementById("propStateFilter").value;
+  const areaVal = document.getElementById("propAreaFilter").value.trim().toLowerCase();
+
+  let filtered = allProperties.filter(p => (p.Status || "").trim().toLowerCase() !== "taken");
+
+  if(stateVal){
+    filtered = filtered.filter(p => (p.State || "").trim() === stateVal);
+  }
+  if(areaVal){
+    filtered = filtered.filter(p => (p["Area / Neighbourhood"] || "").toLowerCase().includes(areaVal));
+  }
+
+  if(filtered.length === 0){
+    grid.innerHTML = `<div class="empty-row">No apartments match that search yet. Try a different state or area.</div>`;
+    countEl.textContent = "";
+    return;
+  }
+
+  grid.innerHTML = filtered.map(propertyCard).join("");
+  countEl.textContent = `${filtered.length} listing${filtered.length === 1 ? "" : "s"} found`;
+}
+
+function loadProperties(){
+  const grid = document.getElementById("propertyGrid");
+
+  if(!SHEETDB_API_URL || SHEETDB_API_URL.includes("PASTE_YOUR")){
+    grid.innerHTML = `<div class="empty-row">Listings aren't connected yet — paste your SheetDB link into SHEETDB_API_URL near the bottom of this file.</div>`;
+    return;
+  }
+
+  fetch(SHEETDB_API_URL)
+    .then(res => {
+      if(!res.ok) throw new Error("SheetDB request failed");
+      return res.json();
+    })
+    .then(data => {
+      // SheetDB usually returns a plain array. If it's wrapped in { data: [...] }, unwrap it.
+      const rows = Array.isArray(data) ? data : (data.data || []);
+      allProperties = rows.filter(row => (row["Property Name"] || "").trim());
+      populateStateOptions(allProperties);
+      renderPropertyList();
+    })
+    .catch(() => {
+      grid.innerHTML = `<div class="empty-row">Couldn't load listings right now. Please check back shortly.</div>`;
+    });
+}
+
+// Report an agent → WhatsApp
+document.getElementById("reportAgentBtn").addEventListener("click", function(e){
+  e.preventDefault();
+  const msg = "Hi RentCheck NG, I want to report an agent.%0A%0AAgent name:%0AAgent phone:%0AWhat happened:";
+  window.open(`https://wa.me/${REPORT_WHATSAPP_NUMBER}?text=${msg}`, "_blank", "noopener");
+});
+
+// Mobile menu
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const mobileMenu = document.getElementById("mobileMenu");
+hamburgerBtn.addEventListener("click", function(){
+  const isOpen = mobileMenu.classList.toggle("open");
+  hamburgerBtn.classList.toggle("active", isOpen);
+  hamburgerBtn.setAttribute("aria-expanded", isOpen);
+});
+mobileMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+  mobileMenu.classList.remove("open");
+  hamburgerBtn.classList.remove("active");
+  hamburgerBtn.setAttribute("aria-expanded", "false");
+}));
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+loadProperties();
+</script>
+</body>
+</html>
