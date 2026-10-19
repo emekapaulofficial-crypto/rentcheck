@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>RentCheck NG — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head><body>
+<header><strong>RentCheck NG · Admin</strong><a href="#" id="out" hidden>Sign out</a></header>
+<div id="msg"></div>
+<main>
+<section class="view card" id="setup" hidden><p>Add your Supabase URL and anon key in <code>rc-common.js</code>.</p></section>
+<section class="view card" id="auth" hidden><h3>Staff sign in</h3>
+ <label>Email</label><input id="a_email" type="email"><label>Password</label><input id="a_pass" type="password">
+ <button id="b_in">Sign in</button></section>
+<section class="view" id="panel" hidden>
+ <div class="card"><button class="alt" data-t="apps">Applications</button><button class="alt" data-t="props">Property queue</button><button class="alt" data-t="audit">Audit log</button></div>
+ <div id="content"></div>
+</section>
+</main>
+<script src="rc-common.js"></script>
+<script>
+const LABELS = { agent_identity_checked: "Agent identity checked", property_viewed: "Property viewed", owner_authority_checked: "Owner/authority checked", details_recently_confirmed: "Details recently confirmed" };
+async function init() {
+  if (!configured()) return show("setup");
+  const { data: { session } } = await sb.auth.getSession(); session ? enter() : show("auth");
+}
+$("b_in").onclick = async () => { const { error } = await sb.auth.signInWithPassword({ email: $("a_email").value.trim(), password: $("a_pass").value }); error ? say(error.message) : enter(); };
+$("out").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.reload(); };
+async function enter() {
+  say(""); $("out").hidden = false;
+  const { data: { user } } = await sb.auth.getUser();
+  const { data: p } = await sb.from("profiles").select("role").eq("id", user.id).single();
+  if (p?.role !== "admin") { show("auth"); return say("This account does not have admin access."); }
+  show("panel"); tab("apps");
+}
+document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => tab(b.dataset.t));
+function tab(t) { ({ apps, props, audit })[t](); }
+const run = (q) => q.then(r => { if (r.error) say(r.error.message); return r; });
+
+async function apps() {
+  const { data } = await run(sb.from("agent_applications").select("*").order("created_at", { ascending: false }));
+  window._apps = data || [];
+  $("content").innerHTML = _apps.map(a => `<div class="card"><strong>${esc(a.full_name)}</strong> <span class="pill">${esc(a.status.replace("_", " "))}</span>
+   <p><small>${esc(a.operating_state)} · ${esc(a.operating_areas)}<br>Phone ${esc(a.phone)} · WhatsApp ${esc(a.whatsapp)}<br>Experience: ${esc(a.experience)}<br>References: ${esc(a.references_text)}</small></p>
+   <button class="alt" onclick="doc('${a.id}')">View ID document</button>
+   <label>Note to applicant / record</label><input id="n_${a.id}" value="${esc(a.reviewer_note || "")}">
+   <button onclick="decide('${a.id}','approved')">Approve</button><button class="alt" onclick="decide('${a.id}','under_review')">Under review</button><button class="alt" onclick="decide('${a.id}','needs_information')">Need info</button><button class="bad" onclick="decide('${a.id}','rejected')">Reject</button><button class="bad" onclick="decide('${a.id}','suspended')">Suspend</button></div>`).join("") || "<div class='card'>No applications.</div>";
+}
+async function doc(id) {
+  const a = _apps.find(x => x.id === id); if (!a.id_document_path) return say("No document attached.");
+  const { data, error } = await sb.storage.from("agent-docs").createSignedUrl(a.id_document_path, 120);
+  error ? say(error.message) : window.open(data.signedUrl, "_blank", "noopener");
+}
+async function decide(id, status) {
+  const note = $("n_" + id).value.trim();
+  if (["rejected", "suspended", "needs_information"].includes(status) && !note) return say("Add a note explaining this decision.");
+  if (!confirm(`Set application to "${status}"?`)) return;
+  const r = await sb.rpc("review_application", { p_id: id, p_status: status, p_note: note });
+  if (!r.error) { say("Saved.", true); apps(); } else say(r.error.message);
+}
+
+async function props() {
+  const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note)").in("status", ["pending_review", "needs_changes", "approved", "hidden"]).order("updated_at", { ascending: false }));
+  $("content").innerHTML = (data || []).map(p => `<div class="card"><strong>${esc(p.title)}</strong> <span class="pill">${esc(p.status.replace("_", " "))}</span>
+   <p><small>${esc(p.area)}, ${esc(p.state)} · ${esc(p.property_type)} · ${naira(p.rent_per_year)}/yr · agency ${naira(p.agency_fee)}, caution ${naira(p.caution_fee)}, legal ${naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
+   <div>${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">photo</a>`).join(" · ")}</div>
+   <p><small>Checks: ${(p.verification_records || []).map(v => esc(LABELS[v.label])).join(", ") || "none recorded"}</small></p>
+   <label>Verification check</label><select id="l_${p.id}">${Object.entries(LABELS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
+   <label>Evidence / what was checked / limitations (required)</label><input id="e_${p.id}">
+   <label>Re-check by (optional)</label><input id="r_${p.id}" type="date"><button class="alt" onclick="verify('${p.id}')">Record check</button>
+   <label>Decision note</label><input id="n_${p.id}" value="${esc(p.reviewer_note || "")}">
+   <button onclick="review('${p.id}','approved')">Approve &amp; publish</button><button class="alt" onclick="review('${p.id}','needs_changes')">Request changes</button><button class="bad" onclick="review('${p.id}','rejected')">Reject</button><button class="bad" onclick="review('${p.id}','hidden')">Hide</button></div>`).join("") || "<div class='card'>No listings in queue.</div>";
+}
+async function verify(id) {
+  const r = await sb.rpc("add_verification", { p_property: id, p_label: $("l_" + id).value, p_note: $("e_" + id).value, p_recheck: $("r_" + id).value || null });
+  if (!r.error) { say("Check recorded.", true); props(); } else say(r.error.message);
+}
+async function review(id, status) {
+  const note = $("n_" + id).value.trim();
+  if (status !== "approved" && !note) return say("Add a note explaining this decision.");
+  if (!confirm(`Set listing to "${status}"?`)) return;
+  const r = await sb.rpc("review_property", { p_id: id, p_status: status, p_note: note });
+  if (!r.error) { say("Saved.", true); props(); } else say(r.error.message);
+}
+async function audit() {
+  const { data } = await run(sb.from("audit_log").select("*").order("created_at", { ascending: false }).limit(100));
+  $("content").innerHTML = `<div class="card">${(data || []).map(a => `<p><small>${esc(new Date(a.created_at).toLocaleString())} · <strong>${esc(a.action)}</strong> · ${esc(a.record_type)} ${esc(a.record_id)} ${esc(a.summary ? JSON.stringify(a.summary) : "")}</small></p>`).join("") || "No entries."}</div>`;
+}
+init();
+</script></body></html>
