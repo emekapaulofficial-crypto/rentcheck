@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RentCheck NG — Agent portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head><body>
+<header><strong>RentCheck NG · Agent portal</strong><span><a href="index.html">Website</a> <a href="#" id="out" hidden>Sign out</a></span></header>
+<div id="msg"></div>
+<main>
+<section class="view card" id="setup" hidden><h3>Setup needed</h3><p>Add your Supabase URL and anon key in <code>rc-common.js</code>. See SECTION2_SETUP.md.</p></section>
+
+<section class="view card" id="auth" hidden>
+ <h3>Agent sign in or apply</h3>
+ <p><small>Only agents approved by RentCheck NG can publish listings. Create an account to apply.</small></p>
+ <label>Full name (for new accounts)</label><input id="a_name" autocomplete="name">
+ <label>Email</label><input id="a_email" type="email" autocomplete="email">
+ <label>Password (min 8 characters)</label><input id="a_pass" type="password" autocomplete="current-password">
+ <button id="b_in">Sign in</button><button class="alt" id="b_up">Create account</button>
+</section>
+
+<section class="view card" id="apply" hidden>
+ <h3>Agent application</h3><p id="app_note"></p>
+ <label>Full name</label><input id="p_name">
+ <div class="row"><div><label>Phone</label><input id="p_phone" inputmode="tel"></div><div><label>WhatsApp number</label><input id="p_wa" inputmode="tel" placeholder="2348012345678"></div></div>
+ <div class="row"><div><label>Operating state</label><select id="p_state"></select></div><div><label>Areas / neighbourhoods</label><input id="p_areas" placeholder="e.g. Ado-Ekiti: Ajilosun, Okesha"></div></div>
+ <label>Experience</label><textarea id="p_exp" rows="3"></textarea>
+ <label>References (name and phone, optional)</label><textarea id="p_ref" rows="2"></textarea>
+ <label>Identity document (photo or PDF, max 5MB — stored privately, seen only by RentCheck staff)</label><input id="p_doc" type="file" accept="image/jpeg,image/png,application/pdf">
+ <label><input id="p_agree" type="checkbox" style="width:auto"> I agree to the agent code of conduct: no fake or duplicate listings, no unapproved fees, no unverified claims, and no asking customers to pay personal accounts outside agreed safeguards.</label>
+ <button id="b_apply">Submit application</button>
+</section>
+
+<section class="view card" id="status" hidden><h3>Application status</h3><p id="st_text"></p></section>
+
+<section class="view" id="dash" hidden>
+ <div class="card"><h3 id="d_hi"></h3><p><small>Listings go live only after RentCheck staff approve them.</small></p></div>
+ <div class="card"><h3 id="f_title">Submit a property</h3>
+  <label>Title</label><input id="f_t">
+  <div class="row"><div><label>State</label><select id="f_state"></select></div><div><label>Area / neighbourhood</label><input id="f_area"></div></div>
+  <div class="row"><div><label>Property type</label><select id="f_type"><option>Self-contained</option><option>Room / studio</option><option>Flat / apartment</option><option>Duplex</option><option>House</option></select></div><div><label>Bedrooms</label><input id="f_bed" type="number" min="0"></div></div>
+  <div class="row"><div><label>Bathrooms</label><input id="f_bath" type="number" min="0"></div><div><label>Rent per year (₦)</label><input id="f_rent" type="number" min="1"></div></div>
+  <div class="row"><div><label>Agency fee (₦)</label><input id="f_ag" type="number" min="0"></div><div><label>Caution fee (₦)</label><input id="f_ca" type="number" min="0"></div></div>
+  <label>Legal fee (₦)</label><input id="f_le" type="number" min="0">
+  <label>Description</label><textarea id="f_desc" rows="3"></textarea>
+  <label>Photos of the actual property (up to 5; JPG/PNG/WEBP, max 3MB each)</label><input id="f_ph" type="file" multiple accept="image/jpeg,image/png,image/webp">
+  <button id="b_prop">Submit for review</button><button class="alt" id="b_cancel" hidden>Cancel edit</button>
+ </div>
+ <div class="card"><h3>My listings</h3><div id="plist"></div></div>
+</section>
+</main>
+<script src="rc-common.js"></script>
+<script>
+let user = null, profile = null, editing = null;
+const LABEL = { submitted: "Submitted — awaiting review", under_review: "Under review", needs_information: "More information needed", approved: "Approved", rejected: "Not approved", suspended: "Suspended" };
+const safeName = n => n.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+async function init() {
+  $("p_state").innerHTML = $("f_state").innerHTML = stateOptions();
+  if (!configured()) return show("setup");
+  const { data: { session } } = await sb.auth.getSession();
+  session ? home() : show("auth");
+}
+$("b_up").onclick = async () => {
+  const email = $("a_email").value.trim(), password = $("a_pass").value, full_name = $("a_name").value.trim();
+  if (!full_name || password.length < 8) return say("Enter your name and a password of at least 8 characters.");
+  const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name } } });
+  if (error) return say(error.message);
+  data.session ? home() : say("Check your email to confirm your account, then sign in.", true);
+};
+$("b_in").onclick = async () => {
+  const { error } = await sb.auth.signInWithPassword({ email: $("a_email").value.trim(), password: $("a_pass").value });
+  error ? say(error.message) : home();
+};
+$("out").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.reload(); };
+
+async function home() {
+  say(""); $("out").hidden = false;
+  user = (await sb.auth.getUser()).data.user;
+  profile = (await sb.from("profiles").select("*").eq("id", user.id).single()).data;
+  if (profile?.role === "agent") { $("d_hi").textContent = `Welcome, ${profile.full_name} · Agent ID ${profile.agent_code}`; show("dash"); return loadProps(); }
+  if (profile?.role === "admin") return say("This is an admin account. Use admin.html.");
+  const { data: app } = await sb.from("agent_applications").select("*").eq("user_id", user.id).maybeSingle();
+  if (!app || app.status === "needs_information") {
+    $("p_name").value = app?.full_name || profile?.full_name || "";
+    if (app) { $("p_phone").value = app.phone; $("p_wa").value = app.whatsapp; $("p_state").value = app.operating_state; $("p_areas").value = app.operating_areas; $("p_exp").value = app.experience || ""; $("p_ref").value = app.references_text || ""; }
+    $("app_note").textContent = app ? "Staff asked for more information: " + (app.reviewer_note || "please review your details") + ". Update and resubmit." : "Applications are reviewed by RentCheck NG staff before you can list properties.";
+    window._app = app; return show("apply");
+  }
+  $("st_text").innerHTML = `<span class="pill">${esc(LABEL[app.status])}</span>` + (app.reviewer_note ? `<p>Note from staff: ${esc(app.reviewer_note)}</p>` : "");
+  show("status");
+}
+
+$("b_apply").onclick = async () => {
+  const v = id => $(id).value.trim(), file = $("p_doc").files[0], old = window._app;
+  if (!v("p_name") || !v("p_phone") || !v("p_wa") || !v("p_areas")) return say("Please fill in name, phone, WhatsApp and areas.");
+  if (!$("p_agree").checked) return say("You must agree to the code of conduct.");
+  if (!file && !old?.id_document_path) return say("Please attach an identity document.");
+  if (file && file.size > 5242880) return say("Identity document must be under 5MB.");
+  let path = old?.id_document_path || null;
+  if (file) {
+    path = `${user.id}/id-${Date.now()}-${safeName(file.name)}`;
+    const up = await sb.storage.from("agent-docs").upload(path, file);
+    if (up.error) return say("Upload failed: " + up.error.message);
+  }
+  const row = { full_name: v("p_name"), phone: v("p_phone"), whatsapp: v("p_wa"), operating_state: $("p_state").value, operating_areas: v("p_areas"), experience: v("p_exp"), references_text: v("p_ref"), id_document_path: path, agreed_conduct: true, status: "submitted" };
+  const r = old ? await sb.from("agent_applications").update(row).eq("id", old.id) : await sb.from("agent_applications").insert({ ...row, user_id: user.id });
+  r.error ? say(r.error.message) : home();
+};
+
+function num(id) { const x = $(id).value; return x === "" ? null : Number(x); }
+$("b_prop").onclick = async () => {
+  const files = [...$("f_ph").files];
+  if (!$("f_t").value.trim() || !$("f_area").value.trim() || !(num("f_rent") > 0)) return say("Title, area and rent are required.");
+  if (files.length > 5 || files.some(f => f.size > 3145728)) return say("Max 5 photos, each under 3MB.");
+  if (!editing && !files.length) return say("Add at least one photo of the actual property.");
+  const urls = [];
+  for (const f of files) {
+    const p = `${user.id}/${Date.now()}-${safeName(f.name)}`;
+    const up = await sb.storage.from("property-photos").upload(p, f);
+    if (up.error) return say("Photo upload failed: " + up.error.message);
+    urls.push(sb.storage.from("property-photos").getPublicUrl(p).data.publicUrl);
+  }
+  const row = { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), property_type: $("f_type").value, bedrooms: num("f_bed"), bathrooms: num("f_bath"), rent_per_year: num("f_rent"), agency_fee: num("f_ag"), caution_fee: num("f_ca"), legal_fee: num("f_le"), description: $("f_desc").value.trim(), status: "pending_review" };
+  if (urls.length) row.photo_urls = urls;
+  const r = editing ? await sb.from("properties").update(row).eq("id", editing) : await sb.from("properties").insert({ ...row, agent_id: user.id });
+  if (r.error) return say(r.error.message);
+  say("Submitted for review.", true); resetForm(); loadProps();
+};
+function resetForm() { editing = null; document.querySelectorAll("#dash input:not([type=file]), #dash textarea").forEach(e => e.value = ""); $("f_ph").value = ""; $("f_title").textContent = "Submit a property"; $("b_cancel").hidden = true; }
+$("b_cancel").onclick = resetForm;
+
+async function loadProps() {
+  const { data, error } = await sb.from("properties").select("*").eq("agent_id", user.id).order("created_at", { ascending: false });
+  if (error) return say(error.message);
+  window._props = data;
+  $("plist").innerHTML = data.length ? data.map(p => `<div style="border-top:1px solid #e1e7e3;padding:10px 0"><strong>${esc(p.title)}</strong> <span class="pill">${esc(p.status.replace("_", " "))}</span><br><small>${esc(p.area)}, ${esc(p.state)} · ${naira(p.rent_per_year)}/yr</small>${p.reviewer_note ? `<br><small>Staff note: ${esc(p.reviewer_note)}</small>` : ""}<br>${p.status === "needs_changes" || p.status === "draft" ? `<button class="alt" onclick="editProp('${p.id}')">Edit &amp; resubmit</button>` : ""}${p.status === "approved" ? `<button class="alt" onclick="rented('${p.id}')">Mark rented</button>` : ""}</div>`).join("") : "<small>No listings yet.</small>";
+}
+function editProp(id) {
+  const p = window._props.find(x => x.id === id); editing = id;
+  $("f_t").value = p.title; $("f_state").value = p.state; $("f_area").value = p.area; $("f_type").value = p.property_type; $("f_bed").value = p.bedrooms ?? ""; $("f_bath").value = p.bathrooms ?? ""; $("f_rent").value = p.rent_per_year; $("f_ag").value = p.agency_fee ?? ""; $("f_ca").value = p.caution_fee ?? ""; $("f_le").value = p.legal_fee ?? ""; $("f_desc").value = p.description || "";
+  $("f_title").textContent = "Edit listing (leave photos empty to keep existing)"; $("b_cancel").hidden = false; scrollTo(0, 0);
+}
+async function rented(id) {
+  if (!confirm("Mark this property as rented? It will leave public search.")) return;
+  const { error } = await sb.rpc("mark_rented", { p_id: id }); error ? say(error.message) : loadProps();
+}
+init();
+</script></body></html>
