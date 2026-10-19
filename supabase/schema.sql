@@ -101,10 +101,10 @@ alter table public.inspection_bookings enable row level security;
 alter table public.complaints enable row level security;
 alter table public.commissions enable row level security;
 create policy profiles_read_self_admin on public.profiles for select to authenticated using(id=auth.uid() or public.rc_is_admin());
-create policy profiles_update_self_admin on public.profiles for update to authenticated using(id=auth.uid() or public.rc_is_admin()) with check(public.rc_is_admin() or (id=auth.uid() and role=(select p.role from public.profiles p where p.id=auth.uid())));
+-- Profiles are not directly editable by users; role changes happen only through admin-only RPCs.
 create policy apps_read_owner_admin on public.agent_applications for select to authenticated using(user_id=auth.uid() or public.rc_is_admin());
 create policy apps_insert_self on public.agent_applications for insert to authenticated with check(user_id=auth.uid() and agreed_conduct=true);
-create policy apps_update_owner_admin on public.agent_applications for update to authenticated using(user_id=auth.uid() or public.rc_is_admin()) with check(user_id=auth.uid() or public.rc_is_admin());
+create policy apps_update_owner_admin on public.agent_applications for update to authenticated using((user_id=auth.uid() and status='needs_information') or public.rc_is_admin()) with check((user_id=auth.uid() and status='submitted') or public.rc_is_admin());
 create policy properties_public_approved_read on public.properties for select to anon,authenticated using(status='approved' or agent_id=auth.uid() or public.rc_is_admin());
 create policy properties_agent_insert on public.properties for insert to authenticated with check(agent_id=auth.uid() and public.rc_is_agent() and status in ('draft','pending_review'));
 create policy properties_agent_update on public.properties for update to authenticated using(agent_id=auth.uid() or public.rc_is_admin()) with check(public.rc_is_admin() or (agent_id=auth.uid() and status in ('draft','pending_review','needs_changes')));
@@ -145,7 +145,7 @@ begin
  if p_status not in ('approved','needs_changes','rejected','hidden') then raise exception 'Invalid property status'; end if;
  if p_status<>'approved' and length(trim(coalesce(p_note,'')))=0 then raise exception 'A decision note is required'; end if;
  if not exists(select 1 from public.properties where id=p_id) then raise exception 'Property not found'; end if;
- if p_status='approved' and not exists(select 1 from public.verification_records where property_id=p_id) then raise exception 'Record at least one verification check before approval'; end if;
+ if p_status='approved' and (select count(distinct label) from public.verification_records where property_id=p_id)<4 then raise exception 'Record all four required verification checks before approval'; end if;
  update public.properties set status=p_status,reviewer_note=trim(coalesce(p_note,'')),published_at=case when p_status='approved' then now() else published_at end where id=p_id;
  insert into public.audit_log(actor_id,action,record_type,record_id,summary) values(auth.uid(),'review_property','property',p_id::text,jsonb_build_object('status',p_status,'note',p_note));
 end; $$;
@@ -159,8 +159,14 @@ grant execute on function public.review_application(uuid,text,text) to authentic
 grant execute on function public.add_verification(uuid,text,text,date) to authenticated;
 grant execute on function public.review_property(uuid,text,text) to authenticated;
 grant execute on function public.mark_rented(uuid) to authenticated;
-create or replace view public.public_properties as select p.id,p.title,p.state,p.area,p.property_type,p.bedrooms,p.bathrooms,p.rent_per_year,p.agency_fee,p.caution_fee,p.legal_fee,p.description,p.photo_urls,p.published_at,p.created_at,pr.full_name as agent_name,pr.agent_code from public.properties p join public.profiles pr on pr.id=p.agent_id where p.status='approved' and pr.status='active';
+create or replace view public.public_properties as select p.id,p.title,p.state,p.area,p.property_type,p.bedrooms,p.bathrooms,p.rent_per_year,p.agency_fee,p.caution_fee,p.legal_fee,p.description,p.photo_urls,p.published_at,p.created_at,pr.full_name as agent_name,pr.agent_code,a.phone as agent_phone,a.whatsapp as agent_whatsapp from public.properties p join public.profiles pr on pr.id=p.agent_id left join public.agent_applications a on a.user_id=p.agent_id and a.status='approved' where p.status='approved' and pr.status='active';
 grant select on public.public_properties to anon,authenticated;
+grant select on public.properties, public.profiles to authenticated;
+grant select,insert,update on public.agent_applications to authenticated;
+grant select,insert,update on public.properties to authenticated;
+grant select on public.verification_records, public.audit_log to authenticated;
+grant insert on public.property_inquiries, public.inspection_bookings, public.complaints to anon,authenticated;
+grant select on public.property_inquiries, public.inspection_bookings, public.complaints, public.commissions to authenticated;
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('agent-docs','agent-docs',false,5242880,array['image/jpeg','image/png','application/pdf']) on conflict(id) do nothing;
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('property-photos','property-photos',true,3145728,array['image/jpeg','image/png','image/webp']) on conflict(id) do nothing;
 create policy agent_docs_owner_upload on storage.objects for insert to authenticated with check(bucket_id='agent-docs' and (storage.foldername(name))[1]=auth.uid()::text);
