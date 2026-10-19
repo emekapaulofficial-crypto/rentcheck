@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RentCheck NG | Find a home with confidence</title>
+<meta name="description" content="Find apartments across Nigeria, compare rental costs, connect with property agents and make a more informed rental decision with RentCheck NG.">
+<meta name="theme-color" content="#153b32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--green:#153b32;--green2:#1f5b4c;--lime:#d9f27a;--cream:#f7f6f0;--white:#fff;--ink:#17251f;--muted:#65736c;--line:#e1e7e1;--orange:#c66b3d;--shadow:0 16px 45px rgba(21,59,50,.10);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:92px}body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}img{display:block;max-width:100%}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button,a{touch-action:manipulation}.wrap{width:min(1160px,calc(100% - 40px));margin:auto}
+h1,h2,h3,h4{font-family:Manrope,sans-serif;line-height:1.15;letter-spacing:-.035em}h2{font-size:clamp(2rem,4vw,3rem)}.muted{color:var(--muted)}.eyebrow{display:inline-flex;align-items:center;gap:9px;text-transform:uppercase;letter-spacing:.12em;font-size:.74rem;font-weight:800;color:var(--green2)}.eyebrow:before{content:"";height:2px;width:22px;background:var(--orange)}.section-head{max-width:680px;margin-bottom:32px}.section-head h2{margin:12px 0}.section-head p{color:var(--muted);font-size:1.03rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;padding:13px 19px;font-weight:700;cursor:pointer;transition:.18s ease}.btn:hover{transform:translateY(-2px)}.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green2)}.btn-lime{background:var(--lime);color:var(--green)}.btn-outline{border-color:#cad7cf;color:var(--green);background:#fff}.btn-small{padding:9px 12px;font-size:.85rem}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:100px;padding:5px 10px;background:#e8f4ec;color:#1d6b4b;font-size:.73rem;font-weight:800}.pill.pending{background:#fff2dc;color:#8a5a10}.pill.warn{background:#fff0eb;color:#a3462c}
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,231,225,.9)}.nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.logo{display:flex;align-items:center;gap:10px;font:800 1.2rem Manrope,sans-serif;letter-spacing:-.04em}.logo-mark{width:36px;height:36px;border-radius:12px;background:var(--green);color:var(--lime);display:grid;place-items:center}.logo span:last-child{color:var(--green2)}.nav-links{display:flex;align-items:center;gap:25px;color:#52625a;font-size:.9rem;font-weight:700}.nav-links a:hover{color:var(--green)}.nav-actions{display:flex;gap:9px;align-items:center}.hamburger{display:none;border:0;background:transparent;font-size:1.3rem;padding:10px;color:var(--green)}.mobile-menu{display:none;padding:4px 20px 18px;background:#fff}.mobile-menu a{display:block;padding:12px 0;border-bottom:1px solid var(--line);font-weight:700;color:var(--muted)}
+.hero{background:var(--cream);padding:62px 0 52px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:50px}.hero h1{font-size:clamp(2.8rem,5.4vw,4.7rem);max-width:660px;margin:17px 0 20px}.hero h1 em{font-style:normal;color:var(--green2);position:relative}.hero-copy>p{font-size:1.1rem;color:#59665f;max-width:550px;margin-bottom:25px}.hero-actions{display:flex;gap:11px;flex-wrap:wrap}.hero-note{display:flex;gap:10px;align-items:center;margin-top:23px;font-size:.84rem;color:var(--muted)}.avatar-stack{display:flex}.avatar-stack span{width:28px;height:28px;border-radius:50%;border:2px solid var(--cream);background:#d6e4d9;display:grid;place-items:center;font-size:.68rem;margin-left:-6px;color:var(--green)}.avatar-stack span:first-child{margin-left:0}
+.hero-visual{position:relative;min-height:440px}.hero-photo{position:absolute;inset:0 25px 18px 15px;border-radius:28px;overflow:hidden;box-shadow:var(--shadow)}.hero-photo img{width:100%;height:100%;object-fit:cover}.hero-photo:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(9,29,23,.5))}.float-card{position:absolute;background:#fff;border:1px solid rgba(225,231,225,.9);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px}.float-card.top{top:28px;left:-7px}.float-card.bottom{right:0;bottom:0;max-width:255px}.float-card strong{display:block;font:800 1.05rem Manrope}.float-card small{color:var(--muted)}.float-card .icon{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eaf4df;color:var(--green);margin-right:9px}
+.trust-strip{border-bottom:1px solid var(--line);padding:19px 0}.trust-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.trust-item{display:flex;align-items:center;gap:10px;color:#52625a;font-size:.88rem;font-weight:700}.trust-item i{color:var(--green2);font-size:1.1rem}
+.search-section{margin-top:-1px;padding:0 0 28px;background:var(--cream)}.search-box{position:relative;z-index:2;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.search-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.search-title strong{font:800 1rem Manrope}.search-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr auto;gap:10px}.field label{display:block;font-size:.73rem;color:var(--muted);font-weight:800;margin:0 0 6px 2px}.field input,.field select,.form-control{width:100%;min-width:0;padding:12px 11px;border:1px solid #dce4dd;border-radius:9px;background:#fff;color:var(--ink);outline:none}.field input:focus,.field select:focus,.form-control:focus{border-color:var(--green2);box-shadow:0 0 0 3px rgba(31,91,76,.1)}
+section.content-section{padding:78px 0}.listings{background:#fff}.listings-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}.listing-tools{display:flex;gap:10px;align-items:center}.listing-tools select{padding:10px;border:1px solid var(--line);border-radius:9px;background:white}.result-count{color:var(--muted);font-size:.87rem;margin:20px 0 14px}.property-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.property-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}.property-card:hover{box-shadow:var(--shadow);transform:translateY(-3px)}.property-image{height:220px;position:relative;background:#e5ebe5;overflow:hidden}.property-image img{width:100%;height:100%;object-fit:cover;transition:transform .3s}.property-card:hover .property-image img{transform:scale(1.03)}.property-image .pill{position:absolute;left:13px;top:13px}.save-btn{position:absolute;right:13px;top:13px;width:36px;height:36px;border:0;border-radius:50%;background:#fff;display:grid;place-items:center;cursor:pointer;color:#52625a}.save-btn.saved{color:#b34242}.property-body{padding:17px;display:flex;flex-direction:column;gap:9px;flex:1}.property-title-row{display:flex;justify-content:space-between;gap:8px}.property-title-row h3{font-size:1.08rem}.property-location{font-size:.86rem;color:var(--muted)}.property-price{font:800 1.25rem Manrope;color:var(--green);margin-top:3px}.property-price small{font:500 .76rem 'DM Sans';color:var(--muted)}.property-meta{display:flex;gap:15px;flex-wrap:wrap;color:#5e6d64;font-size:.81rem;padding:9px 0;border-bottom:1px solid var(--line)}.property-meta i{margin-right:5px;color:var(--green2)}.fee-line{font-size:.78rem;color:var(--muted);line-height:1.5}.property-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:9px;flex-wrap:wrap}.property-actions{display:flex;gap:7px;flex-wrap:wrap}.property-actions .btn{white-space:nowrap}.btn-detail{border:1px solid var(--line);background:#fff;color:var(--green);border-radius:9px;padding:9px 11px;font-weight:700;font-size:.82rem;cursor:pointer}.btn-detail:hover{background:var(--cream)}.detail-photo{width:100%;height:260px;object-fit:cover}.detail-costs{display:grid;gap:8px;margin:16px 0}.detail-cost-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem}.detail-description{color:var(--muted);margin:12px 0}.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.agent-mini{display:flex;align-items:center;gap:8px;font-size:.81rem;font-weight:700}.agent-avatar{width:30px;height:30px;border-radius:50%;background:#e8eee7;display:grid;place-items:center;color:var(--green)}.empty-row{grid-column:1/-1;padding:45px 20px;border:1px dashed #cbd7ce;border-radius:15px;text-align:center;color:var(--muted)}.empty-row i{font-size:2rem;color:#9aa99d;margin-bottom:10px}
+.image-feature{display:grid;grid-template-columns:1fr 1fr;gap:55px;align-items:center}.feature-image{height:470px;border-radius:24px;overflow:hidden;position:relative}.feature-image img{width:100%;height:100%;object-fit:cover}.feature-image .image-caption{position:absolute;bottom:17px;left:17px;right:17px;padding:14px 16px;background:rgba(255,255,255,.95);border-radius:12px;font-weight:700}.feature-copy h2{margin:13px 0 16px}.feature-copy>p{color:var(--muted);margin-bottom:22px}.feature-list{display:grid;gap:15px;margin:23px 0}.feature-list li{list-style:none;display:flex;gap:12px;color:#53635a}.feature-list i{flex:0 0 25px;color:var(--green2);margin-top:4px}.feature-list strong{display:block;color:var(--ink);margin-bottom:2px}
+.how-section{background:var(--cream)}.three-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.step-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:23px}.step-card .num{font:800 .8rem Manrope;color:var(--orange);letter-spacing:.1em}.step-card .step-icon{width:47px;height:47px;border-radius:14px;background:#e8f1e9;color:var(--green);display:grid;place-items:center;font-size:1.2rem;margin:18px 0}.step-card h3{font-size:1.15rem;margin-bottom:9px}.step-card p{font-size:.91rem;color:var(--muted)}
+.agent-section{background:#fff}.agent-benefits{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin:22px 0 28px}.benefit{display:flex;gap:10px;font-size:.91rem}.benefit i{color:var(--green2);margin-top:4px}.agent-cta{display:flex;gap:10px;flex-wrap:wrap}
+.role-section{background:var(--green);color:#fff}.role-section .eyebrow{color:var(--lime)}.role-section .section-head p{color:#d0ddd5}.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.role-card{background:#fff;color:var(--ink);border-radius:16px;overflow:hidden}.role-card img{height:195px;width:100%;object-fit:cover}.role-card-body{padding:20px}.role-card h3{font-size:1.18rem;margin-bottom:8px}.role-card p{font-size:.9rem;color:var(--muted);margin-bottom:14px}.role-card a{font-weight:800;color:var(--green2);font-size:.88rem}
+.dashboard-section{background:#f7f9f6}.dashboard-preview{display:grid;grid-template-columns:220px 1fr;border:1px solid #dce5dd;border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}.dash-sidebar{background:var(--green);color:#d6e4dc;padding:24px 15px}.dash-brand{font:800 1rem Manrope;color:#fff;margin-bottom:28px;padding:0 8px}.dash-nav{display:grid;gap:7px}.dash-nav span{padding:10px;border-radius:8px;font-size:.82rem}.dash-nav span.active{background:#2d5d4f;color:#fff}.dash-main{padding:25px;min-width:0}.dash-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.dash-top h3{font-size:1.3rem}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{border:1px solid var(--line);border-radius:12px;padding:15px}.metric span{font-size:.78rem;color:var(--muted)}.metric strong{display:block;font:800 1.55rem Manrope;margin-top:7px}.dash-table{width:100%;border-collapse:collapse;margin-top:19px;font-size:.81rem}.dash-table th,.dash-table td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line)}.dash-table th{color:var(--muted);font-weight:700}.dash-note{font-size:.77rem;color:var(--muted);margin-top:12px}
+.safety-section{background:#fff}.safety-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.safety-card{border:1px solid var(--line);border-radius:14px;padding:20px}.safety-card i{font-size:1.25rem;color:var(--green2);margin-bottom:15px}.safety-card h3{font-size:1rem;margin-bottom:8px}.safety-card p{font-size:.84rem;color:var(--muted)}
+.report-section{background:#f7f6f0}.report-panel{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px}.report-panel h2{font-size:clamp(1.8rem,3vw,2.5rem);margin:12px 0}.report-panel p{color:var(--muted);margin-bottom:18px}.report-image{height:260px;border-radius:14px;overflow:hidden}.report-image img{width:100%;height:100%;object-fit:cover}
+.faq-list{display:grid;grid-template-columns:1fr 1fr;gap:14px}.faq-item{border:1px solid var(--line);border-radius:12px;padding:18px}.faq-item h3{font-size:1rem;margin-bottom:8px}.faq-item p{font-size:.87rem;color:var(--muted)}
+.final-cta{background:var(--lime);padding:58px 0}.final-cta-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}.final-cta h2{font-size:clamp(1.9rem,3.4vw,2.8rem);max-width:600px}.final-cta p{margin-top:9px;color:#4b624b}.final-actions{display:flex;gap:10px;flex-wrap:wrap}
+footer{background:#102e27;color:#d2dfd7;padding:35px 0 20px}.footer-top{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;padding-bottom:25px}.footer-brand{max-width:330px}.footer-brand .logo{color:#fff;margin-bottom:12px}.footer-brand p{font-size:.87rem;color:#b5c8bd}.footer-links{display:flex;gap:50px;flex-wrap:wrap}.footer-links h4{font:800 .86rem Manrope;color:#fff;margin-bottom:12px}.footer-links a{display:block;font-size:.84rem;color:#c3d1c8;margin:8px 0}.footer-bottom{border-top:1px solid rgba(255,255,255,.14);padding-top:17px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;color:#a8beb2;font-size:.78rem}
+dialog{border:0;border-radius:18px;padding:0;width:min(620px,calc(100% - 28px));max-height:90vh;overflow:auto;box-shadow:0 25px 90px rgba(0,0,0,.25);margin:auto}dialog::backdrop{background:rgba(12,31,25,.58);backdrop-filter:blur(3px)}.modal-head{padding:22px 24px;background:var(--cream);display:flex;justify-content:space-between;align-items:center;gap:12px}.modal-head h3{font-size:1.3rem}.modal-close{border:0;background:transparent;font-size:1.25rem;cursor:pointer}.modal-body{padding:24px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.form-group label{display:block;font-size:.8rem;font-weight:800;margin-bottom:6px}.form-group.full{grid-column:1/-1}.form-group textarea{min-height:90px;resize:vertical}.form-help{font-size:.8rem;color:var(--muted);margin-top:12px}.form-message{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#e8f4ec;color:#1d6b4b;font-size:.87rem}.form-message.show{display:block}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--green);color:white;padding:12px 18px;border-radius:10px;z-index:100;box-shadow:var(--shadow);transition:.2s;font-size:.88rem}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1020px){.nav-links{gap:14px}.nav-actions .btn-outline{display:none}.search-grid{grid-template-columns:repeat(3,1fr)}.search-grid .btn{align-self:end}.property-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.safety-grid{grid-template-columns:repeat(2,1fr)}.hero-grid{gap:30px}.hero-visual{min-height:390px}}
+@media(max-width:760px){.wrap{width:min(100% - 30px,600px)}.nav{height:68px}.nav-links,.nav-actions{display:none}.hamburger{display:block}.mobile-menu.open{display:block}.hero{padding:42px 0 35px}.hero-grid{grid-template-columns:1fr;gap:32px}.hero h1{font-size:clamp(2.65rem,11vw,4rem)}.hero-visual{min-height:330px}.hero-photo{inset:0 14px 15px 8px}.float-card.top{left:0}.trust-inner{justify-content:flex-start}.trust-item{width:calc(50% - 10px);font-size:.8rem}.search-section{padding-bottom:15px}.search-grid{grid-template-columns:1fr 1fr}.search-grid .field:first-child{grid-column:1/-1}.search-grid .btn{width:100%}section.content-section{padding:55px 0}.section-head{margin-bottom:24px}.listings-head{align-items:flex-start}.listing-tools{width:100%}.listing-tools select{flex:1;min-width:0}.property-grid{grid-template-columns:1fr}.property-image{height:230px}.image-feature{grid-template-columns:1fr;gap:28px}.feature-image{height:340px;order:0}.feature-copy{order:1}.three-steps{grid-template-columns:1fr}.role-grid{grid-template-columns:1fr}.role-card img{height:220px}.dashboard-preview{grid-template-columns:1fr}.dash-sidebar{padding:12px}.dash-brand{margin:0 0 10px}.dash-nav{grid-template-columns:repeat(3,1fr)}.dash-nav span{font-size:.72rem;text-align:center;padding:8px 3px}.dash-main{padding:16px}.metric-grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.dash-table{font-size:.72rem}.dash-table th,.dash-table td{padding:9px 4px}.safety-grid{grid-template-columns:1fr 1fr}.report-panel{grid-template-columns:1fr;padding:20px}.report-image{height:210px}.faq-list{grid-template-columns:1fr}.final-cta-inner{align-items:flex-start;flex-direction:column}.footer-links{gap:28px}}
+@media(max-width:420px){.search-grid{grid-template-columns:1fr}.search-grid .field:first-child{grid-column:auto}.hero-visual{min-height:285px}.float-card{padding:12px}.float-card.bottom{max-width:220px}.trust-item{width:100%}.agent-benefits{grid-template-columns:1fr}.safety-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:auto}.dash-nav{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}:focus-visible{outline:3px solid #8caf54;outline-offset:3px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#home" aria-label="RentCheck NG home"><span class="logo-mark"><i class="fa-solid fa-house-circle-check"></i></span>RentCheck <span>NG</span></a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#apartments">Find a home</a><a href="#how">How it works</a><a href="#agents">For agents</a><a href="agent.html">Agent login</a><a href="#admin-controls">For the company</a><a href="#safety">Trust & safety</a>
+    </nav>
+    <div class="nav-actions"><a class="btn btn-outline btn-small" href="#apartments">Browse homes</a><button class="btn btn-primary btn-small" data-open-modal="agentModal">Become an agent <i class="fa-solid fa-arrow-right"></i></button></div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><i class="fa-solid fa-bars"></i></button>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation"><a href="#apartments">Find a home</a><a href="#how">How it works</a><a href="#agents">For agents</a><a href="agent.html">Agent login</a><a href="#admin-controls">For the company</a><a href="#safety">Trust & safety</a><a href="#report">Report a problem</a></nav>
+</header>
+
+<main>
+<section class="hero" id="home">
+ <div class="wrap hero-grid">
+  <div class="hero-copy">
+   <span class="eyebrow">A better way to rent in Nigeria</span>
+   <h1>Find a place you'll love to <em>call home.</em></h1>
+   <p>Explore apartments across Nigeria, understand the full cost before you inspect, and connect with property agents accountable to a trusted platform.</p>
+   <div class="hero-actions"><a href="#apartments" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Find an apartment</a><button class="btn btn-outline" data-open-modal="agentModal"><i class="fa-solid fa-user-tie"></i> Join as an agent</button></div>
+   <div class="hero-note"><div class="avatar-stack"><span><i class="fa-solid fa-house"></i></span><span><i class="fa-solid fa-check"></i></span><span><i class="fa-solid fa-key"></i></span></div><span>Clear prices. Responsible agents. More confident decisions.</span></div>
+  </div>
+  <div class="hero-visual">
+   <div class="hero-photo"><img src="https://images.unsplash.com/photo-1600596374108-6f6f4f3e9b3b?auto=format&fit=crop&w=1200&q=85" alt="Modern home exterior with a welcoming garden" fetchpriority="high" onerror="this.src='https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80'"></div>
+   <div class="float-card top"><span class="icon"><i class="fa-solid fa-shield-halved"></i></span><strong>Trust comes first</strong><small>Listings reviewed before approval</small></div>
+   <div class="float-card bottom"><span class="pill"><i class="fa-solid fa-circle-check"></i> Clear costs</span><strong style="margin-top:9px">Know the full move-in cost</strong><small>Rent, agency, legal and caution fees shown separately.</small></div>
+  </div>
+ </div>
+</section>
+
+<div class="trust-strip"><div class="wrap trust-inner">
+ <div class="trust-item"><i class="fa-solid fa-location-dot"></i> Search by neighbourhood</div><div class="trust-item"><i class="fa-solid fa-receipt"></i> Transparent fee breakdown</div><div class="trust-item"><i class="fa-solid fa-user-check"></i> Agent review process</div><div class="trust-item"><i class="fa-solid fa-flag"></i> Report suspicious listings</div>
+</div></div>
+
+<section class="search-section" aria-label="Search properties"><div class="wrap"><div class="search-box">
+ <div class="search-title"><strong><i class="fa-solid fa-sliders" style="color:var(--green2);margin-right:7px"></i>Find your next home</strong><span class="muted" style="font-size:.8rem">Search available listings</span></div>
+ <div class="search-grid">
+  <div class="field"><label for="propAreaFilter">City or neighbourhood</label><input id="propAreaFilter" type="search" placeholder="e.g. Yaba, Ado-Ekiti"></div>
+  <div class="field"><label for="propStateFilter">State</label><select id="propStateFilter"><option value="">All states</option></select></div>
+  <div class="field"><label for="propTypeFilter">Property type</label><select id="propTypeFilter"><option value="">Any type</option><option>Self-contained</option><option>1 Bedroom Flat</option><option>2 Bedroom Flat</option><option>3 Bedroom Flat</option><option>Duplex</option><option>Room</option><option>House</option></select></div>
+  <div class="field"><label for="propBudgetFilter">Max annual rent</label><select id="propBudgetFilter"><option value="">Any budget</option><option value="200000">₦200,000</option><option value="500000">₦500,000</option><option value="1000000">₦1 million</option><option value="2000000">₦2 million</option><option value="5000000">₦5 million</option></select></div>
+  <div class="field"><label for="propBedroomsFilter">Bedrooms</label><select id="propBedroomsFilter"><option value="">Any</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option></select></div>
+  <button class="btn btn-primary" id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+ </div>
+</div></div></section>
+
+<section class="content-section listings" id="apartments">
+ <div class="wrap">
+  <div class="listings-head"><div class="section-head" style="margin-bottom:0"><span class="eyebrow">Explore properties</span><h2>Homes worth coming home to.</h2><p>Compare location, property details and expected costs before you contact an agent.</p></div>
+   <div class="listing-tools"><label for="sortProperties" class="muted" style="font-size:.82rem">Sort by</label><select id="sortProperties"><option value="newest">Recently added</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></div>
+  </div>
+  <p class="result-count" id="propResultCount" aria-live="polite">Loading available properties…</p>
+  <div class="property-grid" id="propertyGrid"><div class="empty-row"><i class="fa-solid fa-house"></i><br>Loading available homes…</div></div>
+ </div>
+</section>
+
+<section class="content-section how-section" id="how">
+ <div class="wrap">
+  <div class="section-head"><span class="eyebrow">Simple from search to inspection</span><h2>A clearer way to find your next place.</h2><p>Renting should feel organised, not confusing. Here is how RentCheck NG is designed to work.</p></div>
+  <div class="three-steps">
+   <article class="step-card"><span class="num">STEP 01</span><div class="step-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div><h3>Search and compare</h3><p>Filter homes by neighbourhood, budget, property type and bedrooms. Review the rent and listed extra charges.</p></article>
+   <article class="step-card"><span class="num">STEP 02</span><div class="step-icon"><i class="fa-solid fa-calendar-check"></i></div><h3>Contact and inspect</h3><p>Contact the responsible agent, ask questions and agree on an inspection time before making a payment decision.</p></article>
+   <article class="step-card"><span class="num">STEP 03</span><div class="step-icon"><i class="fa-solid fa-shield-heart"></i></div><h3>Make an informed choice</h3><p>Check the property and terms for yourself. Report suspicious information so the team can review it.</p></article>
+  </div>
+ </div>
+</section>
+
+<section class="content-section agent-section" id="agents">
+ <div class="wrap image-feature">
+  <div class="feature-image"><img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1100&q=85" alt="Property professional discussing a real estate opportunity" loading="lazy"><div class="image-caption"><i class="fa-solid fa-users" style="color:var(--green2);margin-right:8px"></i> A growing network of accountable local agents</div></div>
+  <div class="feature-copy"><span class="eyebrow">For property agents</span><h2>Grow your property business with a team behind you.</h2><p>RentCheck NG is being built to help responsible agents reach more renters, organise their listings and manage customer inquiries in one place.</p>
+   <ul class="feature-list">
+    <li><i class="fa-solid fa-circle-check"></i><div><strong>Your own agent profile</strong>Show your service areas and approved listings to people searching for homes.</div></li>
+    <li><i class="fa-solid fa-circle-check"></i><div><strong>Organised property listings</strong>Submit property details, photos, rent and availability for review.</div></li>
+    <li><i class="fa-solid fa-circle-check"></i><div><strong>Clear inquiry tracking</strong>Keep track of customer interest, inspection requests and next steps.</div></li>
+    <li><i class="fa-solid fa-circle-check"></i><div><strong>Fair, written terms</strong>Understand company rules and commission arrangements before working with us.</div></li>
+   </ul>
+   <div class="agent-cta"><button class="btn btn-primary" data-open-modal="agentModal">Apply to become an agent <i class="fa-solid fa-arrow-right"></i></button><a class="btn btn-outline" href="#agent-dashboard">Preview agent dashboard</a></div>
+  </div>
+ </div>
+</section>
+
+<section class="content-section role-section">
+ <div class="wrap">
+  <div class="section-head"><span class="eyebrow">One platform, three roles</span><h2>Built for the people who make renting happen.</h2><p>Every role has a clear job — and clear boundaries — so the experience can scale without losing trust.</p></div>
+  <div class="role-grid">
+   <article class="role-card"><img src="https://images.unsplash.com/photo-1560185008-b033106af5c3?auto=format&fit=crop&w=800&q=80" alt="Bright apartment living room" loading="lazy"><div class="role-card-body"><h3>House seekers</h3><p>Browse properties, compare costs, save favourites, contact agents and request inspections.</p><a href="#apartments">Find a home <i class="fa-solid fa-arrow-right"></i></a></div></article>
+   <article class="role-card"><img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80" alt="Real estate professional at work" loading="lazy"><div class="role-card-body"><h3>Property agents</h3><p>Apply to join, submit listings, respond to inquiries and manage inspection activity.</p><a href="#agents">Join the agent network <i class="fa-solid fa-arrow-right"></i></a></div></article>
+   <article class="role-card"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80" alt="Modern residential property exterior" loading="lazy"><div class="role-card-body"><h3>Landlords and owners</h3><p>Submit property information or authorise an approved agent to list it on your behalf.</p><a href="#owner-modal" data-open-modal="ownerModal">Submit a property <i class="fa-solid fa-arrow-right"></i></a></div></article>
+  </div>
+ </div>
+</section>
+
+<section class="content-section dashboard-section" id="agent-dashboard">
+ <div class="wrap">
+  <div class="section-head"><span class="eyebrow">Agent workspace preview</span><h2>Professional tools for everyday work.</h2><p>The planned agent dashboard will bring listings, leads, inspections and commission records together. This is a visual preview, not a live account or live business data.</p></div>
+  <div class="dashboard-preview">
+   <aside class="dash-sidebar"><div class="dash-brand"><i class="fa-solid fa-house-circle-check" style="color:var(--lime);margin-right:7px"></i> Agent workspace</div><div class="dash-nav"><span class="active"><i class="fa-solid fa-chart-pie"></i> Overview</span><span><i class="fa-solid fa-house"></i> My properties</span><span><i class="fa-solid fa-inbox"></i> Inquiries</span><span><i class="fa-solid fa-calendar"></i> Inspections</span><span><i class="fa-solid fa-wallet"></i> Earnings</span><span><i class="fa-solid fa-circle-question"></i> Support</span></div></aside>
+   <div class="dash-main"><div class="dash-top"><h3>Good morning, Agent</h3><span class="pill pending">Demo preview</span></div>
+    <div class="metric-grid"><div class="metric"><span>Active listings</span><strong>—</strong></div><div class="metric"><span>New inquiries</span><strong>—</strong></div><div class="metric"><span>Upcoming inspections</span><strong>—</strong></div></div>
+    <table class="dash-table"><thead><tr><th>WORK QUEUE</th><th>STATUS</th><th>NEXT ACTION</th></tr></thead><tbody><tr><td>Property listing review</td><td><span class="pill pending">Awaiting review</span></td><td>Check details</td></tr><tr><td>Customer inquiry</td><td><span class="pill">New</span></td><td>Respond</td></tr><tr><td>Inspection request</td><td><span class="pill pending">Proposed</span></td><td>Confirm time</td></tr></tbody></table>
+    <p class="dash-note"><i class="fa-solid fa-circle-info"></i> Example interface only. No live agent records are displayed here.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="content-section" id="admin-controls" style="background:#fff">
+ <div class="wrap image-feature">
+  <div class="feature-copy"><span class="eyebrow">Company control centre</span><h2>One place to manage the whole operation.</h2><p>The company admin workspace is planned to give your team oversight of agent applications, listing approvals, inquiries, inspections, reports and commission records.</p>
+   <ul class="feature-list">
+    <li><i class="fa-solid fa-user-shield"></i><div><strong>Agent approvals</strong>Review applications, manage permissions and suspend accounts when needed.</div></li>
+    <li><i class="fa-solid fa-clipboard-check"></i><div><strong>Listing moderation</strong>Approve, reject or request corrections with a record of the decision.</div></li>
+    <li><i class="fa-solid fa-triangle-exclamation"></i><div><strong>Complaints and safety</strong>Review reports, assign follow-ups and document outcomes.</div></li>
+    <li><i class="fa-solid fa-chart-line"></i><div><strong>Business reporting</strong>Track inquiries, inspections, completed rentals and agreed commission records.</div></li>
+   </ul>
+   <span class="pill pending"><i class="fa-solid fa-eye"></i> Planned admin features — not connected yet</span>
+  </div>
+  <div class="feature-image" style="height:420px"><img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1100&q=85" alt="Business team reviewing operations and project information" loading="lazy"><div class="image-caption"><i class="fa-solid fa-chart-line" style="color:var(--green2);margin-right:8px"></i> Clear workflows, records and accountability</div></div>
+ </div>
+</section>
+
+<section class="content-section safety-section" id="safety">
+ <div class="wrap">
+  <div class="section-head"><span class="eyebrow">Trust, safety and transparency</span><h2>Trust is built through checks, not just badges.</h2><p>Our goal is to make it easier to ask the right questions and flag problems. A badge must always explain what has actually been checked.</p></div>
+  <div class="safety-grid">
+   <article class="safety-card"><i class="fa-solid fa-id-card"></i><h3>Agent review</h3><p>Review identity, references and authority according to the platform's stated process.</p></article>
+   <article class="safety-card"><i class="fa-solid fa-house-circle-check"></i><h3>Property checks</h3><p>Confirm details, availability and the submitter's authority before applying a verification label.</p></article>
+   <article class="safety-card"><i class="fa-solid fa-file-invoice-dollar"></i><h3>Clear fees</h3><p>Show rent, agency, legal, caution and other applicable charges separately.</p></article>
+   <article class="safety-card"><i class="fa-solid fa-flag"></i><h3>Report and review</h3><p>Give renters a clear way to report suspicious listings or agent behaviour for review.</p></article>
+  </div>
+ </div>
+</section>
+
+<section class="content-section report-section" id="report">
+ <div class="wrap report-panel">
+  <div><span class="eyebrow">Need help?</span><h2>Something doesn't look right?</h2><p>Tell the RentCheck NG team about a suspicious listing, misleading information, unexpected fees or an agent interaction that concerns you. Reports are reviewed; a report alone does not prove wrongdoing.</p><button class="btn btn-primary" data-open-modal="reportModal"><i class="fa-solid fa-flag"></i> Report a concern</button></div>
+  <div class="report-image"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80" alt="People discussing a concern and reviewing information" loading="lazy"></div>
+ </div>
+</section>
+
+<section class="content-section" id="faq">
+ <div class="wrap"><div class="section-head"><span class="eyebrow">Questions renters ask</span><h2>Before you make a move.</h2></div>
+  <div class="faq-list">
+   <article class="faq-item"><h3>Does a listing badge guarantee a property?</h3><p>No. A badge should describe the specific checks completed and when. Always view the property and confirm terms before paying.</p></article>
+   <article class="faq-item"><h3>Are all listed fees included?</h3><p>The platform aims to show all charges provided and confirmed by the owner or agent. Ask for a written total move-in cost before committing.</p></article>
+   <article class="faq-item"><h3>Can I browse without an account?</h3><p>Yes. Browsing public listings should not require an account. Some future features, such as saved homes, may require sign-in.</p></article>
+   <article class="faq-item"><h3>How do I become an agent?</h3><p>Submit an application. The team must review it before the applicant can publish approved listings as a RentCheck NG agent.</p></article>
+  </div>
+ </div>
+</section>
+
+<section class="final-cta"><div class="wrap final-cta-inner"><div><h2>Your next home should start with confidence.</h2><p>Search available homes or join the growing network of responsible property agents.</p></div><div class="final-actions"><a class="btn btn-primary" href="#apartments">Browse apartments</a><button class="btn btn-outline" data-open-modal="agentModal">Become an agent</button></div></div></section>
+</main>
+
+<footer><div class="wrap"><div class="footer-top"><div class="footer-brand"><a class="logo" href="#home"><span class="logo-mark"><i class="fa-solid fa-house-circle-check"></i></span>RentCheck <span>NG</span></a><p>Helping Nigerians find rental homes with clearer information, more accountable agents and a better-organised search experience.</p></div><div class="footer-links"><div><h4>Explore</h4><a href="#apartments">Find a home</a><a href="#how">How it works</a><a href="#agents">For agents</a><a href="agent.html">Agent login</a></div><div><h4>Trust</h4><a href="#safety">Trust & safety</a><a href="#report">Report a concern</a><a href="#faq">FAQs</a></div><div><h4>Get involved</h4><a href="#agents">Become an agent</a><a href="#owner-modal" data-open-modal="ownerModal">List a property</a></div></div></div><div class="footer-bottom"><span>© <span id="year"></span> RentCheck NG. Built for Nigerian renters.</span><span>Always inspect and independently confirm details before paying.</span></div></div></footer>
+
+<dialog id="agentModal"><div class="modal-head"><h3>Apply to become an agent</h3><button class="modal-close" data-close-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><p class="muted" style="margin-bottom:17px">Tell us about yourself and the areas you serve. Submitting this demo form opens a prepared WhatsApp message; it does not automatically create or approve an agent account.</p><form id="agentForm"><div class="form-grid">
+ <div class="form-group"><label for="agentName">Full name *</label><input class="form-control" id="agentName" required></div><div class="form-group"><label for="agentPhone">Phone / WhatsApp *</label><input class="form-control" id="agentPhone" type="tel" required></div>
+ <div class="form-group"><label for="agentState">Main state *</label><input class="form-control" id="agentState" required placeholder="e.g. Lagos"></div><div class="form-group"><label for="agentArea">Neighbourhoods served</label><input class="form-control" id="agentArea" placeholder="e.g. Yaba, Surulere"></div>
+ <div class="form-group full"><label for="agentExperience">Experience and references</label><textarea class="form-control" id="agentExperience" placeholder="Briefly tell us about your property experience"></textarea></div>
+ <div class="form-group full"><label style="font-weight:500"><input type="checkbox" id="agentAgreement" required> I agree to provide accurate information and follow the platform's listing and customer-protection rules.</label></div>
+ </div><button class="btn btn-primary" type="submit" style="margin-top:16px">Continue on WhatsApp <i class="fa-brands fa-whatsapp"></i></button><p class="form-help">Your application is not approved until the company reviews it. Do not send identity documents through an unsecured public form.</p><div class="form-message" id="agentMessage" role="status"></div></form></div></dialog>
+
+<dialog id="ownerModal"><div class="modal-head"><h3>Submit a property</h3><button class="modal-close" data-close-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><p class="muted" style="margin-bottom:17px">Share the basics about a property you own or are authorised to market. The team must review the details before a listing is published.</p><form id="ownerForm"><div class="form-grid">
+ <div class="form-group"><label for="ownerName">Your name *</label><input class="form-control" id="ownerName" required></div><div class="form-group"><label for="ownerPhone">Phone / WhatsApp *</label><input class="form-control" id="ownerPhone" type="tel" required></div>
+ <div class="form-group"><label for="ownerProperty">Property type *</label><select class="form-control" id="ownerProperty" required><option value="">Choose type</option><option>Self-contained</option><option>1 Bedroom Flat</option><option>2 Bedroom Flat</option><option>3 Bedroom Flat</option><option>Duplex</option><option>House</option><option>Room</option></select></div><div class="form-group"><label for="ownerRent">Annual rent (₦) *</label><input class="form-control" id="ownerRent" required inputmode="numeric"></div>
+ <div class="form-group"><label for="ownerState">State *</label><input class="form-control" id="ownerState" required></div><div class="form-group"><label for="ownerArea">Area / neighbourhood *</label><input class="form-control" id="ownerArea" required></div>
+ <div class="form-group full"><label for="ownerDetails">Property details and authority to list</label><textarea class="form-control" id="ownerDetails" placeholder="Bedrooms, availability, known fees, and whether you are the owner or authorised representative"></textarea></div>
+ </div><button class="btn btn-primary" type="submit" style="margin-top:16px">Continue on WhatsApp <i class="fa-brands fa-whatsapp"></i></button><p class="form-help">This form prepares a message for review; it does not publish a listing automatically.</p><div class="form-message" id="ownerMessage" role="status"></div></form></div></dialog>
+
+<dialog id="reportModal"><div class="modal-head"><h3>Report a concern</h3><button class="modal-close" data-close-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><p class="muted" style="margin-bottom:17px">Share enough information for the team to review the report. Avoid sending passwords or unrelated sensitive information.</p><form id="reportForm"><div class="form-grid">
+ <div class="form-group"><label for="reporterName">Your name (optional)</label><input class="form-control" id="reporterName"></div><div class="form-group"><label for="reporterPhone">Your contact (optional)</label><input class="form-control" id="reporterPhone" type="tel"></div>
+ <div class="form-group"><label for="reportAgentName">Agent name / listing *</label><input class="form-control" id="reportAgentName" required></div><div class="form-group"><label for="reportAgentPhone">Agent phone (if known)</label><input class="form-control" id="reportAgentPhone" type="tel"></div>
+ <div class="form-group full"><label for="reportDetails">What happened? *</label><textarea class="form-control" id="reportDetails" required placeholder="Describe the concern, including dates or listing details if available"></textarea></div>
+ </div><button class="btn btn-primary" type="submit" style="margin-top:16px">Send report details <i class="fa-brands fa-whatsapp"></i></button><p class="form-help">The team reviews reports before taking action. A report is an allegation, not a final finding.</p><div class="form-message" id="reportMessage" role="status"></div></form></div></dialog>
+<dialog id="propertyDetailModal" aria-labelledby="propertyDetailTitle"><div id="propertyDetailContent"></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Listing feed. Keep the existing SheetDB connection from the supplied project.
+   Configure access and data privacy in SheetDB before using this publicly. */
+const SHEETDB_API_URL = "https://sheetdb.io/api/v1/3euuodhrds5n8";
+const SUPPORT_WHATSAPP_NUMBER = "2348066966747";
+const FALLBACK_PHOTOS = [
+ "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80",
+ "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=900&q=80",
+ "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80",
+ "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=80"
+];
+let allProperties = [];
+let visibleProperties = [];
+let stateOptionsAdded = false;
+const SAVED_PROPERTIES_KEY = "rentcheckng.savedProperties.v1";
+function getSavedProperties(){
+ try { const value=JSON.parse(localStorage.getItem(SAVED_PROPERTIES_KEY)||"[]"); return Array.isArray(value)?value:[]; }
+ catch { return []; }
+}
+function saveSavedProperties(values){
+ try { localStorage.setItem(SAVED_PROPERTIES_KEY,JSON.stringify([...new Set(values)])); return true; }
+ catch { showToast("Your browser could not save favourites on this device."); return false; }
+}
+let toastTimer;
+
+function escapeHTML(value) {
+ return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function normalise(value){ return String(value ?? "").trim(); }
+function moneyNumber(value) {
+ const cleaned = String(value ?? "").replace(/[^0-9.-]/g, "");
+ if (!cleaned.trim()) return null;
+ const n = Number(cleaned);
+ return Number.isFinite(n) && n >= 0 ? n : null;
+}
+function naira(value) {
+ const n = moneyNumber(value);
+ return n === null ? (normalise(value) || "Ask agent") : "₦" + n.toLocaleString("en-NG");
+}
+function propertyRent(p){return moneyNumber(p["Rent Per Year (₦)"]);}
+function whatsappUrl(message, phone=SUPPORT_WHATSAPP_NUMBER){
+ const digits=String(phone||"").replace(/\D/g,"");
+ if(!digits) return "#";
+ return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+function showToast(message){
+ const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
+ clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),3000);
+}
+function populateStateOptions(properties){
+ const select=document.getElementById("propStateFilter");
+ const current=select.value;
+ const states=[...new Set(properties.map(p=>normalise(p.State)).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ select.innerHTML='<option value="">All states</option>'+states.map(s=>`<option value="${escapeHTML(s)}">${escapeHTML(s)}</option>`).join("");
+ if(states.includes(current))select.value=current;
+ stateOptionsAdded=true;
+}
+function propertyImage(p,index){
+ const urls=[p["Photo URL 1"],p["Photo URL 2"],p["Photo URL 3"]].map(normalise).filter(u=>/^https?:\/\//i.test(u));
+ return urls[0] || FALLBACK_PHOTOS[index%FALLBACK_PHOTOS.length];
+}
+function propertyCard(p,index){
+ const name=normalise(p["Property Name"])||"Rental property";
+ const state=normalise(p.State);
+ const area=normalise(p["Area / Neighbourhood"]);
+ const type=normalise(p["Property Type"]);
+ const beds=normalise(p.Bedrooms);
+ const photo=propertyImage(p,index);
+ const rent=naira(p["Rent Per Year (₦)"]);
+ const feeParts=[];
+ [["Agency fee",p["Agency Fee (₦)"]],["Legal fee",p["Legal Fee (₦)"]],["Caution deposit",p["Caution Fee (₦)"]]].forEach(([label,val])=>{if(normalise(val))feeParts.push(`${label}: ${naira(val)}`)});
+ const agentName=normalise(p["Agent Name"])||"Property contact";
+ const agentPhone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
+ const status=normalise(p.Status).toLowerCase();
+ const isVerified=String(p["Verification Status"]||"").toLowerCase()==="verified";
+ const waMsg=`Hello ${agentName}, I found "${name}" on RentCheck NG and would like to confirm availability, the full move-in cost, and arrange an inspection.`;
+ const waLink=whatsappUrl(waMsg,agentPhone);
+ const loc=[area,state].filter(Boolean).join(", ");
+ const propertyKey=normalise(p["Property ID"])||`${name}|${state}|${area}|${normalise(p["Rent Per Year (₦)"])}`;
+ const saved=getSavedProperties().includes(propertyKey);
+ return `<article class="property-card">
+  <div class="property-image"><img src="${escapeHTML(photo)}" alt="${escapeHTML(name)} property photo" loading="lazy" onerror="this.onerror=null;this.src='${FALLBACK_PHOTOS[index%FALLBACK_PHOTOS.length]}'">
+   <span class="pill ${status==="pending"?"pending":""}">${isVerified?'<i class="fa-solid fa-circle-check"></i> Details verified':'<i class="fa-solid fa-clipboard-check"></i> Listing submitted'}</span>
+   <button class="save-btn ${saved?"saved":""}" type="button" aria-label="${saved?"Remove saved property":"Save "+escapeHTML(name)}" aria-pressed="${saved}" data-save-property="${escapeHTML(propertyKey)}"><i class="${saved?"fa-solid":"fa-regular"} fa-heart"></i></button>
+  </div>
+  <div class="property-body"><div class="property-title-row"><h3>${escapeHTML(name)}</h3></div>
+   <p class="property-location"><i class="fa-solid fa-location-dot"></i> ${escapeHTML(loc||"Location to be confirmed")}</p>
+   <div class="property-meta">${type?`<span><i class="fa-solid fa-house"></i>${escapeHTML(type)}</span>`:""}${beds?`<span><i class="fa-solid fa-bed"></i>${escapeHTML(beds)} bed</span>`:""}<span><i class="fa-regular fa-calendar"></i> Per year</span></div>
+   <div class="property-price">${escapeHTML(rent)} <small>/ year</small></div>
+   ${feeParts.length?`<p class="fee-line">${feeParts.map(escapeHTML).join(" · ")}</p>`:'<p class="fee-line">Ask the agent for a written breakdown of all move-in costs.</p>'}
+   ${normalise(p["Short Description"])?`<p class="fee-line">${escapeHTML(p["Short Description"])}</p>`:""}
+   <div class="property-footer"><span class="agent-mini"><span class="agent-avatar"><i class="fa-solid fa-user"></i></span>${escapeHTML(agentName)}</span>
+   <div class="property-actions"><button class="btn-detail" type="button" data-property-details="${index}">Details</button><a class="btn btn-primary btn-small" href="${escapeHTML(waLink)}" target="_blank" rel="noopener noreferrer" ${waLink==="#"?'aria-disabled="true" onclick="return false"':""}>Ask / inspect <i class="fa-brands fa-whatsapp"></i></a></div></div>
+  </div></article>`;
+}
+function renderPropertyList(){
+ const grid=document.getElementById("propertyGrid"),count=document.getElementById("propResultCount");
+ const state=normalise(document.getElementById("propStateFilter").value).toLowerCase();
+ const area=normalise(document.getElementById("propAreaFilter").value).toLowerCase();
+ const type=normalise(document.getElementById("propTypeFilter").value).toLowerCase();
+ const budget=moneyNumber(document.getElementById("propBudgetFilter").value);
+ const bedrooms=Number(document.getElementById("propBedroomsFilter").value||0);
+ let filtered=allProperties.filter(p=>!["taken","rented","unavailable","removed"].includes(normalise(p.Status).toLowerCase()));
+ if(state)filtered=filtered.filter(p=>normalise(p.State).toLowerCase()===state);
+ if(area)filtered=filtered.filter(p=>`${normalise(p["Area / Neighbourhood"])} ${normalise(p.State)} ${normalise(p["Property Name"])}`.toLowerCase().includes(area));
+ if(type)filtered=filtered.filter(p=>normalise(p["Property Type"]).toLowerCase().includes(type) || (type==="house"&&/house|duplex/i.test(normalise(p["Property Type"]))));
+ if(budget!==null)filtered=filtered.filter(p=>{const r=propertyRent(p);return r!==null&&r<=budget;});
+ if(bedrooms)filtered=filtered.filter(p=>(Number(p.Bedrooms)||0)>=bedrooms);
+ const sort=document.getElementById("sortProperties").value;
+ if(sort==="price-low")filtered.sort((a,b)=>(propertyRent(a)??Infinity)-(propertyRent(b)??Infinity));
+ if(sort==="price-high")filtered.sort((a,b)=>(propertyRent(b)??-Infinity)-(propertyRent(a)??-Infinity));
+ visibleProperties=filtered;
+ if(!filtered.length){grid.innerHTML='<div class="empty-row"><i class="fa-solid fa-house-circle-xmark"></i><br><strong>No matching available properties yet.</strong><br>Try changing your filters, or check again later.</div>';count.textContent="0 properties found";return;}
+ grid.innerHTML=filtered.map(propertyCard).join("");
+ count.textContent=`${filtered.length} available listing${filtered.length===1?"":"s"}${state||area||type||budget!==null||bedrooms?" matching your search":""}.`;
+}
+function loadProperties(){
+ const grid=document.getElementById("propertyGrid");
+ if(!SHEETDB_API_URL||SHEETDB_API_URL.includes("PASTE_YOUR")){
+  grid.innerHTML='<div class="empty-row"><i class="fa-solid fa-plug"></i><br>Property listings are not connected yet. Configure the listing feed to show available homes.</div>';
+  document.getElementById("propResultCount").textContent="Listings feed not configured";return;
+ }
+ fetch(SHEETDB_API_URL,{headers:{"Accept":"application/json"}}).then(res=>{if(!res.ok)throw new Error("Listing service unavailable");return res.json();}).then(data=>{
+  const rows=Array.isArray(data)?data:(Array.isArray(data.data)?data.data:[]);
+  allProperties=rows.filter(row=>normalise(row["Property Name"]));
+  populateStateOptions(allProperties);renderPropertyList();
+ }).catch(()=>{
+  grid.innerHTML='<div class="empty-row"><i class="fa-solid fa-cloud-arrow-down"></i><br><strong>We could not load listings right now.</strong><br>Please try again shortly. You can still explore how the platform works.</div>';
+  document.getElementById("propResultCount").textContent="Listings temporarily unavailable";
+ });
+}
+document.getElementById("searchBtn").addEventListener("click",()=>{renderPropertyList();document.getElementById("apartments").scrollIntoView({behavior:"smooth"});});
+["propAreaFilter","propStateFilter","propTypeFilter","propBudgetFilter","propBedroomsFilter"].forEach(id=>{
+ const el=document.getElementById(id);el.addEventListener("change",renderPropertyList);
+ if(el.tagName==="INPUT")el.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();renderPropertyList();document.getElementById("apartments").scrollIntoView({behavior:"smooth"});}});
+});
+document.getElementById("sortProperties").addEventListener("change",renderPropertyList);
+document.addEventListener("click",e=>{
+ const save=e.target.closest("[data-save-property]");
+ if(save){
+  const key=save.dataset.saveProperty;let saved=getSavedProperties();
+  const already=saved.includes(key);saved=already?saved.filter(item=>item!==key):[...saved,key];saveSavedProperties(saved);
+  document.querySelectorAll("[data-save-property]").forEach(button=>{if(button.dataset.saveProperty===key){button.classList.toggle("saved",!already);button.setAttribute("aria-pressed",String(!already));button.setAttribute("aria-label",!already?"Remove saved property":"Save property");const icon=button.querySelector("i");if(icon)icon.className=(!already?"fa-solid":"fa-regular")+" fa-heart";}});
+  showToast(!already?"Property saved on this device.":"Property removed from saved items.");
+ }
+ const detail=e.target.closest("[data-property-details]");
+ if(detail){
+  const property=visibleProperties[Number(detail.dataset.propertyDetails)];
+  if(property){
+   const name=normalise(property["Property Name"])||"Rental property";
+   const image=propertyImage(property,Number(detail.dataset.propertyDetails));
+   const rent=naira(property["Rent Per Year (₦)"]);
+   const feeRows=[["Annual rent",property["Rent Per Year (₦)"]],["Agency fee",property["Agency Fee (₦)"]],["Legal fee",property["Legal Fee (₦)"]],["Caution deposit",property["Caution Fee (₦)"]],["Service charge",property["Service Charge (₦)"]]];
+   const loc=[normalise(property["Area / Neighbourhood"]),normalise(property.State)].filter(Boolean).join(", ");
+   const agent=normalise(property["Agent Name"])||"Property contact";
+   const phone=normalise(property["Agent Phone (WhatsApp)"]).replace(/\.0$/," ").trim();
+   const message=`Hello ${agent}, I am interested in ${name}. Please confirm availability and the full move-in cost and arrange an inspection.`;
+   const contact=whatsappUrl(message,phone);
+   const costs=feeRows.filter(([label,value])=>normalise(value)).map(([label,value])=>`<div class="detail-cost-row"><span>${escapeHTML(label)}</span><strong>${escapeHTML(naira(value))}</strong></div>`).join("");
+   document.getElementById("propertyDetailContent").innerHTML=`<div class="modal-head"><h3 id="propertyDetailTitle">${escapeHTML(name)}</h3><button class="modal-close" data-close-modal aria-label="Close property details"><i class="fa-solid fa-xmark"></i></button></div><img class="detail-photo" src="${escapeHTML(image)}" alt="${escapeHTML(name)} property photo"><div class="modal-body"><p class="property-location"><i class="fa-solid fa-location-dot"></i> ${escapeHTML(loc||"Location to be confirmed")}</p><p class="property-price">${escapeHTML(rent)} <small>/ year</small></p><div class="property-meta">${normalise(property["Property Type"])?`<span><i class="fa-solid fa-house"></i>${escapeHTML(property["Property Type"])}</span>`:""}${normalise(property.Bedrooms)?`<span><i class="fa-solid fa-bed"></i>${escapeHTML(property.Bedrooms)} bed</span>`:""}${normalise(property.Bathrooms)?`<span><i class="fa-solid fa-bath"></i>${escapeHTML(property.Bathrooms)} bath</span>`:""}</div><p class="detail-description">${escapeHTML(normalise(property["Short Description"])||normalise(property.Description)||"Ask the agent for full property details and confirm all information during an inspection.")}</p><h4>Known costs</h4><div class="detail-costs">${costs||"<p class=\"muted\">Only annual rent is currently provided. Ask for a written breakdown of all other move-in costs.</p>"}</div><p class="muted">Contact: ${escapeHTML(agent)}. Confirm the property's availability, authority to rent and full costs before paying.</p><div class="detail-actions"><a class="btn btn-primary" href="${escapeHTML(contact)}" target="_blank" rel="noopener noreferrer" ${contact==="#"?'aria-disabled="true" onclick="return false"':""}>Contact agent <i class="fa-brands fa-whatsapp"></i></a><button class="btn btn-outline" data-close-modal>Close</button></div></div>`;
+   document.getElementById("propertyDetailModal").showModal();
+  }
+ }
+ const opener=e.target.closest("[data-open-modal]");
+ if(opener){e.preventDefault();const dlg=document.getElementById(opener.dataset.openModal);if(dlg)dlg.showModal();}
+ const closer=e.target.closest("[data-close-modal]");
+ if(closer){const dlg=closer.closest("dialog");if(dlg)dlg.close();}
+});
+document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close();}));
+const hamburger=document.getElementById("hamburgerBtn"),mobileMenu=document.getElementById("mobileMenu");
+hamburger.addEventListener("click",()=>{const open=mobileMenu.classList.toggle("open");hamburger.setAttribute("aria-expanded",String(open));hamburger.innerHTML=open?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>';});
+mobileMenu.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{mobileMenu.classList.remove("open");hamburger.setAttribute("aria-expanded","false");hamburger.innerHTML='<i class="fa-solid fa-bars"></i>';}));
+function connectForm(formId,fields,subject,messageId){
+ const form=document.getElementById(formId);if(!form)return;
+ form.addEventListener("submit",e=>{e.preventDefault();const vals=fields.map(([label,id])=>`${label}: ${normalise(document.getElementById(id).value)||"Not provided"}`);
+  const message=`Hello RentCheck NG,\n\n${subject}\n\n${vals.join("\n")}\n\nPlease let me know the next steps.`;
+  const url=whatsappUrl(message);
+  const msg=document.getElementById(messageId);msg.textContent="Your message is ready. WhatsApp will open so you can review and send it. This does not submit or approve anything automatically.";msg.classList.add("show");
+  if(url!=="#")window.open(url,"_blank","noopener,noreferrer");
+ });
+}
+connectForm("agentForm",[["Name","agentName"],["Phone","agentPhone"],["Main state","agentState"],["Areas served","agentArea"],["Experience","agentExperience"]],"Agent application","agentMessage");
+connectForm("ownerForm",[["Name","ownerName"],["Phone","ownerPhone"],["Property type","ownerProperty"],["Annual rent","ownerRent"],["State","ownerState"],["Area","ownerArea"],["Details","ownerDetails"]],"Property submission for review","ownerMessage");
+connectForm("reportForm",[["Reporter name","reporterName"],["Reporter contact","reporterPhone"],["Agent/listing","reportAgentName"],["Agent phone","reportAgentPhone"],["What happened","reportDetails"]],"Report a concern","reportMessage");
+document.getElementById("year").textContent=new Date().getFullYear();
+loadProperties();
+</script>
+</body>
+</html>
