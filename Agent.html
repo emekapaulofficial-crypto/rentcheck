@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agent portal | RentCheck NG</title>
+<title>Agent portal | Prime Estate &amp; Properties</title>
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -14,7 +14,7 @@
 
 <section class="view card" id="auth" hidden>
  <h2>Agent portal</h2>
- <p class="hint">Only agents approved by RentCheck NG can publish listings.</p>
+ <p class="hint">Only agents approved by Prime Estate &amp; Properties can publish listings.</p>
  <div class="seg" role="tablist"><button type="button" id="t_in" class="on">Sign in</button><button type="button" id="t_up">Create account</button></div>
  <form id="authForm">
   <div id="nameWrap" hidden><label for="a_name">Full name</label><input id="a_name" autocomplete="name"></div>
@@ -38,7 +38,7 @@
  <div class="row"><div><label for="p_state">State you work in</label><select id="p_state"></select></div><div><label for="p_areas">Areas / neighbourhoods</label><input id="p_areas" placeholder="e.g. Ado-Ekiti: Ajilosun, Okesha"></div></div>
  <label for="p_exp">Experience</label><textarea id="p_exp" rows="3"></textarea>
  <label for="p_ref">References (name and phone, optional)</label><textarea id="p_ref" rows="2"></textarea>
- <label for="p_doc">ID document (photo or PDF, max 5MB). Stored privately. Only RentCheck staff can open it.</label><input id="p_doc" type="file" accept="image/jpeg,image/png,application/pdf">
+ <label for="p_doc">ID document (photo or PDF, max 5MB). Stored privately. Only Prime Estate &amp; Properties staff can open it.</label><input id="p_doc" type="file" accept="image/jpeg,image/png,application/pdf">
  <label class="inline"><input id="p_agree" type="checkbox"> I agree to the agent rules: no fake or duplicate listings, no unapproved fees, no unverified claims, and no asking renters to pay personal accounts.</label>
  <button type="button" id="b_apply">Submit application</button>
 </section>
@@ -46,7 +46,7 @@
 <section class="view card" id="status" hidden><h2>Application status</h2><p id="st_text"></p><p class="hint">We will review your application. Check back here or sign in again later.</p></section>
 
 <section class="view" id="dash" hidden>
- <div class="card"><h2 id="d_hi"></h2><p class="hint">Listings go live only after RentCheck staff check and approve them.</p></div>
+ <div class="card"><h2 id="d_hi"></h2><p class="hint">Listings go live only after Prime Estate &amp; Properties staff check and approve them.</p></div>
  <div class="tabs" role="tablist">
   <button type="button" data-pane="p_over" aria-selected="true">Overview</button>
   <button type="button" data-pane="p_add" aria-selected="false">Add property</button>
@@ -63,11 +63,18 @@
 
  <div class="pane" id="p_add" hidden>
   <div class="card"><h3 id="f_title">Add a property</h3>
+   <label for="f_kind">What are you listing?</label><select id="f_kind"><option value="house">House or apartment (for rent)</option><option value="land">Land (for sale)</option></select>
    <label for="f_t">Listing title</label><input id="f_t" placeholder="e.g. Spacious 2 bedroom flat in Ajilosun">
    <div class="row"><div><label for="f_state">State</label><select id="f_state"></select></div><div><label for="f_area">Area / neighbourhood</label><input id="f_area"></div></div>
+   <div id="house_fields">
    <div class="row"><div><label for="f_type">Property type</label><select id="f_type"><option>Self-contained</option><option>Room / studio</option><option>Flat / apartment</option><option>Duplex</option><option>House</option></select></div><div><label for="f_bed">Bedrooms</label><input id="f_bed" type="number" min="0"></div></div>
    <div class="row"><div><label for="f_bath">Bathrooms</label><input id="f_bath" type="number" min="0"></div><div><label for="f_rent">Rent per year (₦)</label><input id="f_rent" type="number" min="1" inputmode="numeric"></div></div>
    <div class="row3"><div><label for="f_ag">Agency fee (₦)</label><input id="f_ag" type="number" min="0" inputmode="numeric"></div><div><label for="f_ca">Caution fee (₦)</label><input id="f_ca" type="number" min="0" inputmode="numeric"></div><div><label for="f_le">Legal fee (₦)</label><input id="f_le" type="number" min="0" inputmode="numeric"></div></div>
+   </div>
+   <div id="land_fields" hidden>
+    <div class="row"><div><label for="f_ltype">Type of land</label><select id="f_ltype"><option>Residential land</option><option>Commercial land</option><option>Farmland</option><option>Mixed-use land</option></select></div><div><label for="f_lsize">Land size (square metres)</label><input id="f_lsize" type="number" min="1" inputmode="numeric" placeholder="e.g. 600 for one plot"></div></div>
+    <div class="row"><div><label for="f_lprice">Selling price (₦)</label><input id="f_lprice" type="number" min="1" inputmode="numeric"></div><div><label for="f_ltitle">Land document</label><select id="f_ltitle"><option>Certificate of Occupancy (C of O)</option><option>Governor's Consent</option><option>Registered Deed of Assignment</option><option>Survey plan only</option><option>Family land (no title yet)</option><option>Other / ask agent</option></select></div></div>
+   </div>
    <label for="f_desc">Description</label><textarea id="f_desc" rows="4" placeholder="Water, light, fence, tiles, parking, nearby roads, when it is available"></textarea>
   </div>
 
@@ -79,7 +86,7 @@
   </div>
 
   <div class="card"><h3>Owner / landlord details</h3>
-   <div class="private"><strong>Private.</strong> Only you and RentCheck staff can see this. It is never shown on the website.</div>
+   <div class="private"><strong>Private.</strong> Only you and Prime Estate &amp; Properties staff can see this. It is never shown on the website.</div>
    <label for="o_rel">Who is giving you this property?</label>
    <select id="o_rel"><option value="">Choose one</option><option value="owner">The owner</option><option value="family_with_authority">Owner's family member with authority</option><option value="caretaker">Caretaker</option><option value="company_or_other_agent">A company or another agent</option></select>
    <div class="row"><div><label for="o_name">Owner's full name</label><input id="o_name" autocomplete="off"></div><div><label for="o_phone">Owner's phone number</label><input id="o_phone" inputmode="tel" autocomplete="off"></div></div>
@@ -283,7 +290,10 @@ async function uploadOwnerDocs() {
 /* ---------- save property ---------- */
 async function saveProperty(status) {
   const submit = status === "pending_review";
-  if (($("f_t").value.trim().length < 5) || !$("f_area").value.trim() || !(num("f_rent") > 0)) return say("Add a title (at least 5 letters), the area and the yearly rent.");
+  const land = $("f_kind").value === "land";
+  if (($("f_t").value.trim().length < 5) || !$("f_area").value.trim()) return say("Add a title (at least 5 letters) and the area.");
+  if (land && (!(num("f_lprice") > 0) || !(num("f_lsize") > 0))) return say("For land, add the selling price and the size in square metres.");
+  if (!land && !(num("f_rent") > 0)) return say("Add the yearly rent.");
   if ($("o_docs").files.length > 5) return say("Please attach at most 5 owner documents.");
   if (submit) {
     if (photos.length < MIN_PH) return say(`Add at least ${MIN_PH} photos of the real property.`);
@@ -294,7 +304,9 @@ async function saveProperty(status) {
     const urls = await uploadPhotos();
     progress(0, 0, "Saving…");
     const newDocs = await uploadOwnerDocs();
-    const row = { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), property_type: $("f_type").value, bedrooms: num("f_bed"), bathrooms: num("f_bath"), rent_per_year: num("f_rent"), agency_fee: num("f_ag") ?? 0, caution_fee: num("f_ca") ?? 0, legal_fee: num("f_le") ?? 0, description: $("f_desc").value.trim(), photo_urls: urls, status };
+    const row = land
+      ? { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), property_type: $("f_ltype").value, bedrooms: null, bathrooms: null, rent_per_year: null, agency_fee: 0, caution_fee: 0, legal_fee: 0, listing_kind: "land", sale_price: num("f_lprice"), land_size_sqm: num("f_lsize"), land_title: $("f_ltitle").value, description: $("f_desc").value.trim(), photo_urls: urls, status }
+      : { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), property_type: $("f_type").value, bedrooms: num("f_bed"), bathrooms: num("f_bath"), rent_per_year: num("f_rent"), agency_fee: num("f_ag") ?? 0, caution_fee: num("f_ca") ?? 0, legal_fee: num("f_le") ?? 0, listing_kind: "house", sale_price: null, land_size_sqm: null, land_title: null, description: $("f_desc").value.trim(), photo_urls: urls, status };
     let id = editing;
     if (editing) { const r = await sb.from("properties").update(row).eq("id", editing); if (r.error) throw r.error; }
     else { const r = await sb.from("properties").insert({ ...row, agent_id: user.id }).select("id").single(); if (r.error) throw r.error; id = r.data.id; }
@@ -309,10 +321,13 @@ async function saveProperty(status) {
 }
 $("b_submit").onclick = () => saveProperty("pending_review");
 $("b_draft").onclick = () => saveProperty("draft");
+function kindUI() { const land = $("f_kind").value === "land"; $("house_fields").hidden = land; $("land_fields").hidden = !land; }
+$("f_kind").onchange = kindUI;
 function resetForm() {
   editing = null; photos = []; ownerDocsHave = [];
   document.querySelectorAll("#p_add input:not([type=file]), #p_add textarea").forEach(e => e.value = "");
   $("o_rel").value = ""; $("o_docs").value = ""; $("o_docs_have").textContent = "";
+  $("f_kind").value = "house"; $("f_ltype").selectedIndex = 0; $("f_ltitle").selectedIndex = 0; kindUI();
   $("f_title").textContent = "Add a property"; $("b_cancel").hidden = true; progress(0, 0, ""); renderPhotos();
 }
 $("b_cancel").onclick = () => { resetForm(); pane("p_list"); };
@@ -324,18 +339,21 @@ async function loadProps() {
   window._props = data;
   const c = s => data.filter(p => p.status === s).length;
   $("stats").innerHTML = [["Live", c("approved")], ["Waiting", c("pending_review")], ["Changes needed", c("needs_changes")], ["Drafts", c("draft")]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
-  $("plist").innerHTML = data.length ? data.map(p => `<div class="lst">${p.photo_urls?.[0] ? `<img src="${esc(p.photo_urls[0])}" alt="">` : '<div class="noimg"></div>'}<div><strong>${esc(p.title)}</strong> <span class="pill ${p.status === "approved" ? "good" : p.status === "needs_changes" || p.status === "rejected" ? "bad" : "warn"}">${esc(PSTAT[p.status] || p.status)}</span><br><small>${esc(p.area)}, ${esc(p.state)} · ${naira(p.rent_per_year)}/yr · ${(p.photo_urls || []).length} photos</small>${p.reviewer_note ? `<br><small>Staff note: ${esc(p.reviewer_note)}</small>` : ""}<br>${["needs_changes", "draft"].includes(p.status) ? `<button type="button" class="alt" onclick="editProp('${p.id}')">Edit and resubmit</button>` : ""}${p.status === "approved" ? `<button type="button" class="alt" onclick="rented('${p.id}')">Mark as rented</button>` : ""}</div></div>`).join("") : '<p class="hint">No listings yet. Tap "Add property" to start.</p>';
+  $("plist").innerHTML = data.length ? data.map(p => `<div class="lst">${p.photo_urls?.[0] ? `<img src="${esc(p.photo_urls[0])}" alt="">` : '<div class="noimg"></div>'}<div><strong>${esc(p.title)}</strong> <span class="pill ${p.status === "approved" ? "good" : p.status === "needs_changes" || p.status === "rejected" ? "bad" : "warn"}">${esc(p.listing_kind === "land" && p.status === "rented" ? "Sold" : (PSTAT[p.status] || p.status))}</span><br><small>${esc(p.area)}, ${esc(p.state)} · ${p.listing_kind === "land" ? "Land · " + naira(p.sale_price) + " · " + (p.land_size_sqm ? Number(p.land_size_sqm).toLocaleString("en-NG") + " sqm" : "size not set") : naira(p.rent_per_year) + "/yr"} · ${(p.photo_urls || []).length} photos</small>${p.reviewer_note ? `<br><small>Staff note: ${esc(p.reviewer_note)}</small>` : ""}<br>${["needs_changes", "draft"].includes(p.status) ? `<button type="button" class="alt" onclick="editProp('${p.id}')">Edit and resubmit</button>` : ""}${p.status === "approved" ? `<button type="button" class="alt" onclick="rented('${p.id}')">${p.listing_kind === "land" ? "Mark as sold" : "Mark as rented"}</button>` : ""}</div></div>`).join("") : '<p class="hint">No listings yet. Tap "Add property" to start.</p>';
 }
 async function editProp(id) {
   const p = window._props.find(x => x.id === id); resetForm(); editing = id;
   $("f_t").value = p.title; $("f_state").value = p.state; $("f_area").value = p.area; $("f_type").value = p.property_type; $("f_bed").value = p.bedrooms ?? ""; $("f_bath").value = p.bathrooms ?? ""; $("f_rent").value = p.rent_per_year; $("f_ag").value = p.agency_fee ?? ""; $("f_ca").value = p.caution_fee ?? ""; $("f_le").value = p.legal_fee ?? ""; $("f_desc").value = p.description || "";
+  $("f_kind").value = p.listing_kind || "house";
+  if (p.listing_kind === "land") { $("f_ltype").value = p.property_type; $("f_lsize").value = p.land_size_sqm ?? ""; $("f_lprice").value = p.sale_price ?? ""; $("f_ltitle").value = p.land_title || $("f_ltitle").options[0].value; }
+  kindUI();
   photos = (p.photo_urls || []).map(u => ({ url: u, preview: u })); renderPhotos();
   const { data: o } = await sb.from("property_owner_details").select("*").eq("property_id", id).maybeSingle();
   if (o) { $("o_rel").value = o.relationship; $("o_name").value = o.owner_name; $("o_phone").value = o.owner_phone; $("o_email").value = o.owner_email || ""; $("o_addr").value = o.owner_address || ""; ownerDocsHave = o.authority_doc_paths || []; $("o_docs_have").textContent = ownerDocsHave.length ? `${ownerDocsHave.length} owner document(s) already saved. New files are added to them.` : ""; }
   $("f_title").textContent = "Edit listing"; $("b_cancel").hidden = false; pane("p_add");
 }
 async function rented(id) {
-  if (!confirm("Mark this property as rented? It will leave public search.")) return;
+  if (!confirm("Mark this listing as rented or sold? It will leave public search.")) return;
   const { error } = await sb.rpc("mark_rented", { p_id: id }); error ? say(error.message) : loadProps();
 }
 renderPhotos(); setMode("in"); init();
