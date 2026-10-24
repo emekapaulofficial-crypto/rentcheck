@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>RentCheck NG — Admin</title>
+<meta name="robots" content="noindex"><title>Prime Estate &amp; Properties — Admin</title>
 <link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>window.RC_NO_STYLE = true;</script>
@@ -63,7 +63,7 @@ async function props() {
   const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note), property_owner_details(*)").in("status", ["pending_review", "needs_changes", "approved", "hidden"]).order("updated_at", { ascending: false }));
   window._queue = data || [];
   $("content").innerHTML = (data || []).map(p => `<div class="card"><strong>${esc(p.title)}</strong> <span class="pill">${esc(p.status.replace("_", " "))}</span>
-   <p><small>${esc(p.area)}, ${esc(p.state)} · ${esc(p.property_type)} · ${naira(p.rent_per_year)}/yr · agency ${naira(p.agency_fee)}, caution ${naira(p.caution_fee)}, legal ${naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
+   <p><small>${esc(p.area)}, ${esc(p.state)} · ${esc(p.property_type)} · ${p.listing_kind === "land" ? "LAND FOR SALE · " + naira(p.sale_price) + " · " + (p.land_size_sqm ? Number(p.land_size_sqm).toLocaleString("en-NG") + " sqm" : "size not set") + " · " + esc(p.land_title || "document not set") : naira(p.rent_per_year) + "/yr · agency " + naira(p.agency_fee) + ", caution " + naira(p.caution_fee) + ", legal " + naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
    <div class="thumbs">${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Property photo" loading="lazy"></a>`).join("")}</div><small>${(p.photo_urls || []).length} photos</small>
    ${ownerBlock(p)}
    <p><small>Checks: ${(p.verification_records || []).map(v => esc(LABELS[v.label])).join(", ") || "none recorded"}</small></p>
