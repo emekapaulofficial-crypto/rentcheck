@@ -9,7 +9,10 @@ Build a Nigerian property-rental marketplace where renters can discover properti
 3. **Customer operations:** inquiries, inspection scheduling, notifications, customer support and complaint records.
 4. **Admin, revenue and launch:** admin controls, commission tracking, analytics, security, legal review, testing and rollout.
 
-## Current state
+## Current state (v3)
+Agent login, unlimited-style photo upload (30), private owner details and the Supabase-backed homepage are built but must be tested on a live Supabase project (see SETUP.md). Inquiries and inspection bookings still use WhatsApp.
+
+## Earlier state
 Section 1 has a redesigned frontend and working client-side search/filter/sort against the existing SheetDB feed, plus property details and device-local favourites. This is not a backend implementation. Agent/owner/report forms use WhatsApp handoff and do not create database records. Dashboard views are previews.
 
 ## Technical guardrails
@@ -27,3 +30,4 @@ Section 1 has a redesigned frontend and working client-side search/filter/sort a
 - Backend/database choice and whether a Supabase project already exists.
 - First launch city and initial agent onboarding policy.
 - Commission basis and whether the website will process any money.
+- 
