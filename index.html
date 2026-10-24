@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RentCheck NG | Check the home before you pay the rent</title>
-<meta name="description" content="Find rental homes in Nigeria with the agent, the checks and the full move-in cost shown up front. Every listing is reviewed by the RentCheck NG team before it goes live.">
+<title>Prime Estate &amp; Properties | Check the home before you pay the rent</title>
+<meta name="description" content="Find rental homes in Nigeria with the agent, the checks and the full move-in cost shown up front. Every listing is reviewed by the Prime Estate &amp; Properties team before it goes live.">
 <meta name="theme-color" content="#0A4D3A">
 <link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="site-pages.css">
@@ -21,11 +21,11 @@
   <div class="hh-copy">
    <h1 id="heroTitle">Check the home before you pay the rent.</h1>
    <p class="lead">Every listing shows who the agent is, which checks our team has recorded, and what you will pay in total.</p>
-   <p class="hh-links">Own a home or work as an agent? <a href="owners.html">See how to list a property</a></p>
+   <p class="hh-links">Own a home or work as an agent? <a href="owners.html">See how to list a property</a> · <a href="#lands">Looking for land?</a></p>
   </div>
 
   <div class="specimen-wrap">
-   <aside class="specimen" aria-label="Example of a RentCheck NG check report">
+   <aside class="specimen" aria-label="Example of a Prime Estate &amp; Properties check report">
     <span class="sp-stamp" aria-hidden="true">Checked</span>
     <span class="sp-tag">Example check report</span>
     <h2>2 bedroom flat in Ajilosun</h2>
@@ -70,10 +70,23 @@
  </div>
 </section>
 
+<section class="homes" id="lands" aria-labelledby="landsTitle">
+ <div class="wrap">
+  <div class="homes-head">
+   <div>
+    <h2 id="landsTitle">Lands for sale</h2>
+    <p class="result-count" id="landResultCount" aria-live="polite">Loading lands…</p>
+   </div>
+   <div class="sort"><label for="sortLands">Sort by</label><select id="sortLands"><option value="newest">Recently added</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></div>
+  </div>
+  <div class="home-grid" id="landGrid"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+ </div>
+</section>
+
 <section class="checks" id="checks" aria-labelledby="checksTitle">
  <div class="wrap checks-grid">
   <div class="checks-intro">
-   <h2 id="checksTitle">What “Checked” means on RentCheck NG</h2>
+   <h2 id="checksTitle">What “Checked” means on Prime Estate &amp; Properties</h2>
    <p>A home gets the Checked badge only after our team has recorded all four checks below. Nothing goes live before that.</p>
   </div>
   <div>
@@ -113,7 +126,7 @@
   </div>
   <div class="join-owners">
    <h2>Owners: let a checked agent list your home</h2>
-   <p>You do not need an account. Send us the details, or ask a RentCheck NG agent near you.</p>
+   <p>You do not need an account. Send us the details, or ask a Prime Estate &amp; Properties agent near you.</p>
    <a class="btn alt" href="owners.html">How owners list a home</a>
   </div>
  </div>
@@ -180,6 +193,9 @@ const CHECKS = {
 let shown = 12, lastKey = "";
 let allProperties = [];
 let visibleProperties = [];
+let allLands = [];
+let visibleLands = [];
+let shownL = 12, lastKeyL = "";
 const SAVED_PROPERTIES_KEY = "rentcheckng.savedProperties.v1";
 function getSavedProperties(){
  try { const value=JSON.parse(localStorage.getItem(SAVED_PROPERTIES_KEY)||"[]"); return Array.isArray(value)?value:[]; }
@@ -225,7 +241,7 @@ function populateStateOptions(){
 }
 function propertyImage(p){ return (p.photos&&p.photos[0])||PLACEHOLDER; }
 function badgeHTML(p){
- return p._verified ? `<span class="badge">${ic("shield")}Checked by RentCheck NG</span>` : `<span class="badge no">${ic("open")}Not yet verified</span>`;
+ return p._verified ? `<span class="badge">${ic("shield")}Checked by Prime Estate &amp; Properties</span>` : `<span class="badge no">${ic("open")}Not yet verified</span>`;
 }
 function propertyCard(p,index){
  const name=normalise(p["Property Name"])||"Rental property";
@@ -234,7 +250,7 @@ function propertyCard(p,index){
  const loc=[area,state].filter(Boolean).join(", ")||"Location to be confirmed";
  const agentName=normalise(p["Agent Name"])||"Property contact";
  const agentPhone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
- const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on RentCheck NG and would like to confirm availability, the full move-in cost, and arrange an inspection.`,agentPhone);
+ const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on Prime Estate & Properties and would like to confirm availability, the full move-in cost, and arrange an inspection.`,agentPhone);
  const key=normalise(p["Property ID"])||`${name}|${state}|${area}|${normalise(p["Rent Per Year (₦)"])}`;
  const saved=getSavedProperties().includes(key);
  const total=moveInTotal(p);
@@ -255,6 +271,62 @@ function propertyCard(p,index){
    <p class="hc-agent">${ic("user")}Listed by ${escapeHTML(agentName)}</p>
    <div class="hc-actions"><button class="btn alt small" type="button" data-property-details="${index}">Details</button><a class="btn small" href="${escapeHTML(waLink)}" target="_blank" rel="noopener noreferrer" ${waLink==="#"?'aria-disabled="true" onclick="return false"':""}>${ic("whatsapp")}Message agent</a></div>
   </div></article>`;
+}
+function landSize(p){const n=moneyNumber(p["Land Size (sqm)"]);return n===null?"":n.toLocaleString("en-NG")+" sqm";}
+function landFacts(p){
+ const type=normalise(p["Property Type"]),size=landSize(p),doc=normalise(p["Land Title"]);
+ return `${type?`<li>${ic("home")}${escapeHTML(type)}</li>`:""}${size?`<li>${ic("pin")}${escapeHTML(size)}</li>`:""}${doc?`<li>${ic("check")}${escapeHTML(doc)}</li>`:""}`;
+}
+function landCard(p,index){
+ const name=normalise(p["Property Name"])||"Land for sale";
+ const state=normalise(p.State), area=normalise(p["Area / Neighbourhood"]);
+ const loc=[area,state].filter(Boolean).join(", ")||"Location to be confirmed";
+ const agentName=normalise(p["Agent Name"])||"Property contact";
+ const agentPhone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
+ const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on Prime Estate & Properties and would like to confirm it is still available, see the land documents and arrange a site inspection.`,agentPhone);
+ const key=normalise(p["Property ID"])||`${name}|${state}|${area}|${normalise(p["Sale Price (₦)"])}`;
+ const saved=getSavedProperties().includes(key);
+ const photos=(p.photos||[]).length;
+ return `<article class="home-card">
+  <div style="position:relative">
+   <button class="hc-photo" type="button" data-land-details="${index}" aria-label="View details for ${escapeHTML(name)}"><img src="${escapeHTML(propertyImage(p))}" alt="${escapeHTML(name)}" loading="lazy" onerror="this.onerror=null;this.src='${PLACEHOLDER}'"></button>
+   ${badgeHTML(p)}
+   ${photos>1?`<span class="photo-count">${ic("images")}${photos}</span>`:""}
+   <button class="save-btn ${saved?"saved":""}" type="button" aria-label="${saved?"Remove from saved homes":"Save "+escapeHTML(name)}" aria-pressed="${saved}" data-save-property="${escapeHTML(key)}">${ic(saved?"heart-fill":"heart")}</button>
+  </div>
+  <div class="hc-body">
+   <div class="hc-price"><strong>${escapeHTML(money(p["Sale Price (₦)"]))}</strong><span>for sale</span></div>
+   <h3 class="hc-title">${escapeHTML(name)}</h3>
+   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>
+   <ul class="hc-facts">${landFacts(p)}</ul>
+   <p class="hc-total ask">See the land documents and visit the site before you pay.</p>
+   <p class="hc-agent">${ic("user")}Listed by ${escapeHTML(agentName)}</p>
+   <div class="hc-actions"><button class="btn alt small" type="button" data-land-details="${index}">Details</button><a class="btn small" href="${escapeHTML(waLink)}" target="_blank" rel="noopener noreferrer" ${waLink==="#"?'aria-disabled="true" onclick="return false"':""}>${ic("whatsapp")}Message agent</a></div>
+  </div></article>`;
+}
+/* Lands use the same Area and State boxes as the homes search at the top of the page. */
+function renderLandList(){
+ const grid=document.getElementById("landGrid"),count=document.getElementById("landResultCount");
+ const state=normalise(document.getElementById("propStateFilter").value).toLowerCase();
+ const area=normalise(document.getElementById("propAreaFilter").value).toLowerCase();
+ const filtering=!!(state||area);
+ let filtered=allLands.slice();
+ if(state)filtered=filtered.filter(p=>normalise(p.State).toLowerCase()===state);
+ if(area)filtered=filtered.filter(p=>`${normalise(p["Area / Neighbourhood"])} ${normalise(p.State)} ${normalise(p["Property Name"])}`.toLowerCase().includes(area));
+ const price=p=>moneyNumber(p["Sale Price (₦)"]);
+ const sort=document.getElementById("sortLands").value;
+ if(sort==="price-low")filtered.sort((a,b)=>(price(a)??Infinity)-(price(b)??Infinity));
+ if(sort==="price-high")filtered.sort((a,b)=>(price(b)??-Infinity)-(price(a)??-Infinity));
+ visibleLands=filtered;
+ if(!filtered.length){
+  grid.innerHTML=filtering
+   ? emptyBlock("search","No lands match your search","Try a wider area or clear the filters.",'<button class="btn alt" type="button" id="clearFilters">Clear filters</button>')
+   : emptyBlock("home","No lands are listed yet","New lands appear here as soon as our team has checked them. Please look again soon.");
+  count.textContent=filtering?"0 lands match your search":"No lands listed yet";return;
+ }
+ const key=[state,area,sort].join("|");if(key!==lastKeyL){shownL=12;lastKeyL=key;}
+ grid.innerHTML=filtered.slice(0,shownL).map(landCard).join("")+(filtered.length>shownL?`<div class="more-row"><button class="btn alt" type="button" id="moreLandBtn">Show more lands (${filtered.length-shownL} left)</button></div>`:"");
+ count.textContent=`${filtered.length} land${filtered.length===1?"":"s"}${filtering?" match your search":" available"}`;
 }
 function emptyBlock(icon,title,text,extra=""){
  return `<div class="empty">${ic(icon)}<h3>${title}</h3><p>${text}</p>${extra}</div>`;
@@ -291,21 +363,23 @@ async function loadProperties(){
  const grid=document.getElementById("propertyGrid"),count=document.getElementById("propResultCount");
  if(typeof configured!=="function"||!configured()||!sb){
   grid.innerHTML=emptyBlock("plug","Homes are not connected yet","The site owner needs to add the database keys. See SETUP.md.");
-  count.textContent="Homes not connected";return;
+  count.textContent="Homes not connected";document.getElementById("landGrid").innerHTML=emptyBlock("plug","Lands are not connected yet","The site owner needs to add the database keys. See SETUP.md.");document.getElementById("landResultCount").textContent="Lands not connected";return;
  }
  try{
   const {data,error}=await sb.from("public_properties").select("*").order("published_at",{ascending:false});
   if(error)throw error;
-  allProperties=(data||[]).map(r=>({
+  const mapped=(data||[]).map(r=>({
    "Property ID":r.id,"Property Name":r.title,State:r.state,"Area / Neighbourhood":r.area,"Property Type":r.property_type,
    Bedrooms:r.bedrooms??"",Bathrooms:r.bathrooms??"","Rent Per Year (₦)":r.rent_per_year,"Agency Fee (₦)":r.agency_fee,"Legal Fee (₦)":r.legal_fee,"Caution Fee (₦)":r.caution_fee,
    "Short Description":r.description,"Agent Name":r.agent_name,"Agent Phone (WhatsApp)":r.agent_whatsapp||r.agent_phone,
-   photos:r.photo_urls||[],_verified:(r.verified_labels||[]).length>=4,_labels:r.verified_labels||[]
+   photos:r.photo_urls||[],_verified:(r.verified_labels||[]).length>=4,_labels:r.verified_labels||[],
+   Kind:r.listing_kind||"house","Sale Price (₦)":r.sale_price,"Land Size (sqm)":r.land_size_sqm,"Land Title":r.land_title
   }));
-  populateStateOptions();renderPropertyList();
+  allProperties=mapped.filter(p=>p.Kind!=="land");allLands=mapped.filter(p=>p.Kind==="land");
+  populateStateOptions();renderPropertyList();renderLandList();
  }catch(e){
   grid.innerHTML=emptyBlock("plug","We could not load the homes","Check your connection and try again.",'<button class="btn alt" type="button" id="retryLoad">Try again</button>');
-  count.textContent="Homes are temporarily unavailable";
+  count.textContent="Homes are temporarily unavailable";document.getElementById("landResultCount").textContent="Lands are temporarily unavailable";
  }
 }
 
@@ -319,17 +393,18 @@ function setGallery(i){
  const c=document.getElementById("galCount"); if(c)c.textContent=`${gal.i+1} / ${gal.list.length}`;
  document.querySelectorAll("[data-gal-idx]").forEach(b=>b.setAttribute("aria-current",String(Number(b.dataset.galIdx)===gal.i)));
 }
-function openDetails(index){
- const p=visibleProperties[index]; if(!p)return;
- const name=normalise(p["Property Name"])||"Rental property";
+function openDetails(index,list=visibleProperties){
+ const p=list[index]; if(!p)return;
+ const isLand=p.Kind==="land";
+ const name=normalise(p["Property Name"])||(isLand?"Land for sale":"Rental property");
  const loc=[normalise(p["Area / Neighbourhood"]),normalise(p.State)].filter(Boolean).join(", ")||"Location to be confirmed";
  const agent=normalise(p["Agent Name"])||"Property contact";
  const phone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
- const wa=whatsappUrl(`Hello ${agent}, I am interested in "${name}" on RentCheck NG. Please confirm it is available, the full move-in cost, and a time to inspect.`,phone);
+ const wa=whatsappUrl(isLand?`Hello ${agent}, I am interested in "${name}" on Prime Estate & Properties. Please confirm it is available, the price, the land documents, and a time to visit the site.`:`Hello ${agent}, I am interested in "${name}" on Prime Estate & Properties. Please confirm it is available, the full move-in cost, and a time to inspect.`,phone);
  gal={list:(p.photos&&p.photos.length)?p.photos:[PLACEHOLDER],i:0,name};
  const multi=gal.list.length>1;
- const rows=[["Rent for the year",p["Rent Per Year (₦)"]],["Agency fee",p["Agency Fee (₦)"]],["Legal fee",p["Legal Fee (₦)"]],["Caution deposit",p["Caution Fee (₦)"]]].filter(([,v])=>normalise(v));
- const total=moveInTotal(p);
+ const rows=isLand?[["Price",p["Sale Price (₦)"]]]:[["Rent for the year",p["Rent Per Year (₦)"]],["Agency fee",p["Agency Fee (₦)"]],["Legal fee",p["Legal Fee (₦)"]],["Caution deposit",p["Caution Fee (₦)"]]].filter(([,v])=>normalise(v));
+ const total=isLand?null:moveInTotal(p);
  const costs=rows.map(([l,v])=>`<div><span>${escapeHTML(l)}</span><span>${escapeHTML(money(v))}</span></div>`).join("")+(total!==null?`<div class="total"><span>Total to move in</span><span>${escapeHTML(money(total))}</span></div>`:"");
  const checks=Object.entries(CHECKS).map(([k,label])=>{const ok=(p._labels||[]).includes(k);return `<li><span class="t ${ok?"":"off"}">${ok?ic("check"):""}</span><span>${escapeHTML(label)}${ok?"":" (not recorded)"}</span></li>`;}).join("");
  const beds=normalise(p.Bedrooms), baths=normalise(p.Bathrooms), type=normalise(p["Property Type"]);
@@ -344,13 +419,13 @@ function openDetails(index){
   </div>
   <div class="pd-info">
    <button class="modal-close" type="button" data-close-modal aria-label="Close details">${ic("x")}</button>
-   <p class="pd-price">${escapeHTML(money(p["Rent Per Year (₦)"]))} <small>a year</small></p>
+   <p class="pd-price">${isLand?`${escapeHTML(money(p["Sale Price (₦)"]))} <small>for sale</small>`:`${escapeHTML(money(p["Rent Per Year (₦)"]))} <small>a year</small>`}</p>
    <h2 id="propertyDetailTitle">${escapeHTML(name)}</h2>
    <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>
-   <ul class="hc-facts">${type?`<li>${ic("home")}${escapeHTML(type)}</li>`:""}${beds?`<li>${ic("bed")}${escapeHTML(beds)} bed${beds==="1"?"":"s"}</li>`:""}${baths?`<li>${ic("bath")}${escapeHTML(baths)} bath${baths==="1"?"":"s"}</li>`:""}</ul>
+   <ul class="hc-facts">${isLand?landFacts(p):""}${isLand?"":type?`<li>${ic("home")}${escapeHTML(type)}</li>`:""}${isLand?"":beds?`<li>${ic("bed")}${escapeHTML(beds)} bed${beds==="1"?"":"s"}</li>`:""}${baths?`<li>${ic("bath")}${escapeHTML(baths)} bath${baths==="1"?"":"s"}</li>`:""}</ul>
    <p class="pd-desc">${escapeHTML(normalise(p["Short Description"])||"Ask the agent for the full details, and confirm everything when you inspect.")}</p>
    <div class="pd-sec"><h3>What our team checked</h3><ul class="pd-checks">${checks}</ul></div>
-   <div class="pd-sec"><h3>What you will pay</h3><div class="pd-costs">${costs||"<p class=\"muted\">No fees are listed. Ask the agent for the full cost in writing.</p>"}</div><p class="pd-note">Confirm every amount in writing before you pay.</p></div>
+   <div class="pd-sec"><h3>${isLand?"Price":"What you will pay"}</h3><div class="pd-costs">${costs||"<p class=\"muted\">No price is listed. Ask the agent for the full cost in writing.</p>"}</div><p class="pd-note">${isLand?"Ask to see the land documents and the survey plan, visit the site, and pay only against a receipt or signed agreement.":"Confirm every amount in writing before you pay."}</p></div>
    <p class="hc-agent" style="margin-top:22px">${ic("user")}Listed by ${escapeHTML(agent)}</p>
    <div class="pd-cta"><a class="btn" href="${escapeHTML(wa)}" target="_blank" rel="noopener noreferrer" ${wa==="#"?'aria-disabled="true" onclick="return false"':""}>${ic("whatsapp")}Message the agent</a><button class="link" type="button" data-report-listing="${escapeHTML(name+" ("+agent+")")}">Report this listing</button></div>
   </div>
@@ -359,19 +434,22 @@ function openDetails(index){
 }
 
 /* ----- events ----- */
-function goToHomes(){renderPropertyList();document.getElementById("homes").scrollIntoView({behavior:"smooth"});}
+function goToHomes(){renderPropertyList();renderLandList();document.getElementById("homes").scrollIntoView({behavior:"smooth"});}
 document.getElementById("searchBtn").addEventListener("click",goToHomes);
 ["propAreaFilter","propStateFilter","propTypeFilter","propBudgetFilter","propBedroomsFilter"].forEach(id=>{
  const el=document.getElementById(id);el.addEventListener("change",renderPropertyList);
  if(el.tagName==="INPUT")el.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();goToHomes();}});
 });
 document.getElementById("sortProperties").addEventListener("change",renderPropertyList);
+document.getElementById("sortLands").addEventListener("change",renderLandList);
+["propAreaFilter","propStateFilter"].forEach(id=>{const el=document.getElementById(id);el.addEventListener(el.tagName==="INPUT"?"input":"change",renderLandList);});
 document.addEventListener("click",e=>{
  const step=e.target.closest("[data-gal-step]"); if(step){setGallery(gal.i+Number(step.dataset.galStep));return;}
  const idx=e.target.closest("[data-gal-idx]"); if(idx){setGallery(Number(idx.dataset.galIdx));return;}
  if(e.target.closest("#moreBtn")){shown+=12;renderPropertyList();return;}
+ if(e.target.closest("#moreLandBtn")){shownL+=12;renderLandList();return;}
  if(e.target.closest("#retryLoad")){loadProperties();return;}
- if(e.target.closest("#clearFilters")){["propAreaFilter","propStateFilter","propTypeFilter","propBudgetFilter","propBedroomsFilter"].forEach(id=>document.getElementById(id).value="");renderPropertyList();return;}
+ if(e.target.closest("#clearFilters")){["propAreaFilter","propStateFilter","propTypeFilter","propBudgetFilter","propBedroomsFilter"].forEach(id=>document.getElementById(id).value="");renderPropertyList();renderLandList();return;}
  const save=e.target.closest("[data-save-property]");
  if(save){
   const key=save.dataset.saveProperty;let saved=getSavedProperties();
@@ -380,6 +458,8 @@ document.addEventListener("click",e=>{
   showToast(!already?"Saved on this phone.":"Removed from saved homes.");
   return;
  }
+ const landDetail=e.target.closest("[data-land-details]");
+ if(landDetail){openDetails(Number(landDetail.dataset.landDetails),visibleLands);return;}
  const detail=e.target.closest("[data-property-details]");
  if(detail){openDetails(Number(detail.dataset.propertyDetails));return;}
  const rep=e.target.closest("[data-report-listing]");
@@ -399,7 +479,7 @@ document.getElementById("reportForm").addEventListener("submit",e=>{
  e.preventDefault();
  const f=[["Reporter name","reporterName"],["Reporter contact","reporterPhone"],["Agent or listing","reportAgentName"],["Agent phone","reportAgentPhone"],["What happened","reportDetails"]];
  const vals=f.map(([label,id])=>`${label}: ${normalise(document.getElementById(id).value)||"Not provided"}`);
- const url=whatsappUrl(`Hello RentCheck NG,\n\nI want to report a concern.\n\n${vals.join("\n")}\n\nPlease tell me the next steps.`);
+ const url=whatsappUrl(`Hello Prime Estate & Properties,\n\nI want to report a concern.\n\n${vals.join("\n")}\n\nPlease tell me the next steps.`);
  const msg=document.getElementById("reportMessage");
  msg.textContent="Your message is ready. WhatsApp will open so you can review and send it. Nothing is sent until you press send.";msg.classList.add("show");
  if(url!=="#")window.open(url,"_blank","noopener,noreferrer");
