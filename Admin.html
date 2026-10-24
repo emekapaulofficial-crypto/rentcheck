@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>RentCheck NG — Admin</title>
+<link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>window.RC_NO_STYLE = true;</script>
 </head><body>
-<header><strong>RentCheck NG · Admin</strong><a href="#" id="out" hidden>Sign out</a></header>
-<div id="msg"></div>
-<main>
+<div id="rc-header"></div>
+<div id="msg" role="status"></div>
+<main class="portal">
 <section class="view card" id="setup" hidden><p>Add your Supabase URL and anon key in <code>rc-common.js</code>.</p></section>
 <section class="view card" id="auth" hidden><h3>Staff sign in</h3>
  <label>Email</label><input id="a_email" type="email"><label>Password</label><input id="a_pass" type="password">
  <button id="b_in">Sign in</button></section>
 <section class="view" id="panel" hidden>
- <div class="card"><button class="alt" data-t="apps">Applications</button><button class="alt" data-t="props">Property queue</button><button class="alt" data-t="audit">Audit log</button></div>
+ <div class="tabs"><button type="button" class="alt" data-t="apps">Applications</button><button type="button" class="alt" data-t="props">Property queue</button><button type="button" class="alt" data-t="audit">Audit log</button><button type="button" class="push alt" id="out2">Sign out</button></div>
  <div id="content"></div>
 </section>
 </main>
@@ -23,9 +25,9 @@ async function init() {
   const { data: { session } } = await sb.auth.getSession(); session ? enter() : show("auth");
 }
 $("b_in").onclick = async () => { const { error } = await sb.auth.signInWithPassword({ email: $("a_email").value.trim(), password: $("a_pass").value }); error ? say(error.message) : enter(); };
-$("out").onclick = async e => { e.preventDefault(); await sb.auth.signOut(); location.reload(); };
+document.addEventListener("click", async e => { if (e.target.id === "out2") { await sb.auth.signOut(); location.reload(); } });
 async function enter() {
-  say(""); $("out").hidden = false;
+  say("");
   const { data: { user } } = await sb.auth.getUser();
   const { data: p } = await sb.from("profiles").select("role").eq("id", user.id).single();
   if (p?.role !== "admin") { show("auth"); return say("This account does not have admin access."); }
@@ -58,16 +60,30 @@ async function decide(id, status) {
 }
 
 async function props() {
-  const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note)").in("status", ["pending_review", "needs_changes", "approved", "hidden"]).order("updated_at", { ascending: false }));
+  const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note), property_owner_details(*)").in("status", ["pending_review", "needs_changes", "approved", "hidden"]).order("updated_at", { ascending: false }));
+  window._queue = data || [];
   $("content").innerHTML = (data || []).map(p => `<div class="card"><strong>${esc(p.title)}</strong> <span class="pill">${esc(p.status.replace("_", " "))}</span>
    <p><small>${esc(p.area)}, ${esc(p.state)} · ${esc(p.property_type)} · ${naira(p.rent_per_year)}/yr · agency ${naira(p.agency_fee)}, caution ${naira(p.caution_fee)}, legal ${naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
-   <div>${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">photo</a>`).join(" · ")}</div>
+   <div class="thumbs">${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Property photo" loading="lazy"></a>`).join("")}</div><small>${(p.photo_urls || []).length} photos</small>
+   ${ownerBlock(p)}
    <p><small>Checks: ${(p.verification_records || []).map(v => esc(LABELS[v.label])).join(", ") || "none recorded"}</small></p>
    <label>Verification check</label><select id="l_${p.id}">${Object.entries(LABELS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
    <label>Evidence / what was checked / limitations (required)</label><input id="e_${p.id}">
    <label>Re-check by (optional)</label><input id="r_${p.id}" type="date"><button class="alt" onclick="verify('${p.id}')">Record check</button>
    <label>Decision note</label><input id="n_${p.id}" value="${esc(p.reviewer_note || "")}">
    <button onclick="review('${p.id}','approved')">Approve &amp; publish</button><button class="alt" onclick="review('${p.id}','needs_changes')">Request changes</button><button class="bad" onclick="review('${p.id}','rejected')">Reject</button><button class="bad" onclick="review('${p.id}','hidden')">Hide</button></div>`).join("") || "<div class='card'>No listings in queue.</div>";
+}
+function ownerBlock(p) {
+  const o = Array.isArray(p.property_owner_details) ? p.property_owner_details[0] : p.property_owner_details;
+  if (!o) return '<div class="private"><strong>No owner details were provided.</strong> Do not tick "Owner/authority checked".</div>';
+  const REL = { owner: "The owner", family_with_authority: "Owner's family member with authority", caretaker: "Caretaker", company_or_other_agent: "Company or another agent" };
+  return `<div class="private"><strong>Owner details (private)</strong><br><small>${esc(REL[o.relationship] || o.relationship)}<br>Name: ${esc(o.owner_name)} · Phone: ${esc(o.owner_phone)}${o.owner_email ? " · " + esc(o.owner_email) : ""}${o.owner_address ? "<br>Address: " + esc(o.owner_address) : ""}</small><br>${(o.authority_doc_paths || []).length ? `<button type="button" class="alt" onclick="ownerDocs('${p.id}')">Open ${(o.authority_doc_paths || []).length} owner document(s)</button><div id="od_${p.id}"></div>` : "<small>No proof documents attached.</small>"}</div>`;
+}
+async function ownerDocs(id) {
+  const row = (window._queue || []).find(x => x.id === id); const o = Array.isArray(row.property_owner_details) ? row.property_owner_details[0] : row.property_owner_details;
+  const links = [];
+  for (const path of o.authority_doc_paths) { const { data, error } = await sb.storage.from("owner-docs").createSignedUrl(path, 120); if (!error) links.push(`<a href="${esc(data.signedUrl)}" target="_blank" rel="noopener">Document ${links.length + 1}</a>`); }
+  document.getElementById("od_" + id).innerHTML = links.join(" · ") || "<small>Could not open documents.</small>";
 }
 async function verify(id) {
   const r = await sb.rpc("add_verification", { p_property: id, p_label: $("l_" + id).value, p_note: $("e_" + id).value, p_recheck: $("r_" + id).value || null });
@@ -85,4 +101,5 @@ async function audit() {
   $("content").innerHTML = `<div class="card">${(data || []).map(a => `<p><small>${esc(new Date(a.created_at).toLocaleString())} · <strong>${esc(a.action)}</strong> · ${esc(a.record_type)} ${esc(a.record_id)} ${esc(a.summary ? JSON.stringify(a.summary) : "")}</small></p>`).join("") || "No entries."}</div>`;
 }
 init();
-</script></body></html>
+</script>
+<div id="rc-footer"></div><script src="rc-nav.js"></script></body></html>
