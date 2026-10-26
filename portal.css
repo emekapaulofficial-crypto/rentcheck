@@ -1,0 +1,53 @@
+/* Portal styles for the agent page (agent.html). Loaded after site-pages.css. */
+:root{--g:#0f3d2e;--g2:#1f5b4c;--lime:#d9f27a;--line:#d8e0da;--bg:#f4f6f5;--mut:#51615a}
+body{background:var(--bg)}
+.portal{width:min(900px,calc(100% - 28px));margin:0 auto;padding:22px 0 40px}
+.portal h2{margin:.2rem 0 .6rem}.portal h3{margin:.2rem 0 .8rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 14px;box-shadow:0 1px 3px #0001}
+.view[hidden],.pane[hidden],[hidden]{display:none!important}
+#msg{width:min(900px,calc(100% - 28px));margin:10px auto 0;padding:0;font-size:.95rem;min-height:0}
+#msg:empty{display:none}
+#msg.ok{color:#146c2e}#msg.err{color:#b3261e}
+.hint,small{color:var(--mut);font-size:.88rem}
+label{display:block;font-size:.85rem;font-weight:650;margin:12px 0 5px}
+label.inline{display:flex;gap:10px;align-items:flex-start;font-weight:500;line-height:1.5}
+label.inline input{width:auto;margin-top:4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #c5cec9;border-radius:9px;font:inherit;background:#fff;color:#14211b}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--g2);outline-offset:1px}
+input[type=checkbox]{width:auto}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+button{background:var(--g);color:#fff;border:0;border-radius:9px;padding:11px 16px;font:inherit;font-weight:650;cursor:pointer;margin:10px 8px 0 0}
+button:hover{background:var(--g2)}
+button.alt{background:#fff;color:var(--g);border:1px solid var(--g)}
+button.alt:hover{background:#eef4f0}
+button.bad{background:#b3261e}
+button:disabled{opacity:.55;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--g);border-radius:999px;overflow:hidden;margin:0 0 6px}
+.seg button{margin:0;border-radius:0;background:#fff;color:var(--g);padding:9px 18px}
+.seg button.on{background:var(--g);color:#fff}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;align-items:center}
+.tabs button{margin:0;background:#fff;color:var(--g);border:1px solid var(--line)}
+.tabs button[aria-selected=true]{background:var(--g);color:#fff;border-color:var(--g)}
+.tabs .push{margin-left:auto}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat{background:var(--bg);border-radius:10px;padding:12px;text-align:center;font-size:.85rem;color:var(--mut)}
+.stat b{display:block;font-size:1.6rem;color:var(--g)}
+.steps{padding-left:20px;line-height:1.6}.steps li{margin:6px 0}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;background:#e6efe9;font-size:.78rem;font-weight:650}
+.pill.good{background:#d9f2df;color:#146c2e}.pill.warn{background:#fdf0cc;color:#8a5a00}.pill.bad{background:#fbdcd9;color:#b3261e}
+.private{background:#fff8e1;border-left:4px solid #e0a800;border-radius:8px;padding:12px 14px;margin:14px 0;font-size:.92rem}
+.drop{display:block;border:2px dashed #9db8ac;border-radius:12px;padding:26px 14px;text-align:center;cursor:pointer;background:#fafcfb;margin:8px 0}
+.drop.over{background:#eaf5ee;border-color:var(--g2)}
+.drop input{display:none}
+.ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:10px 0}
+.ph{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.ph img{display:block;width:100%;height:100px;object-fit:cover}
+.ph .cover{position:absolute;top:6px;left:6px;background:var(--lime);color:var(--g);font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:99px}
+.ph-actions{display:flex;gap:4px;padding:4px;justify-content:center}
+.ph-actions button{margin:0;padding:4px 8px;font-size:.8rem}
+.lst{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.lst:first-child{border-top:0}
+.lst img,.noimg{width:72px;height:56px;border-radius:8px;object-fit:cover;background:#e6efe9;flex:none}
+progress{width:100%;height:10px;margin-top:10px}
+@media(max-width:640px){.row,.row3{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs .push{margin-left:0}}
