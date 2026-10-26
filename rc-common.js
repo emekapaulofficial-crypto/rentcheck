@@ -1,5 +1,5 @@
 /* RentCheck NG shared browser helpers. Configure only with the NEW dedicated Supabase project's URL and anon/publishable key. Never put service_role here. */
-const RC = { url: "YOUR_SUPABASE_PROJECT_URL", key: "YOUR_SUPABASE_ANON_KEY" };
+const RC = { url: "https://holnihsidzrezgoiwerc.supabase.co", key: "sb_publishable_3mm4oBhqP9Dmu13sUcgjMw_CHMETNJE" };
 const STATES = ["Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno","Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT Abuja","Gombe","Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"];
 const configured = () => /^https:\/\/.+\.supabase\.co\/?$/.test(String(RC.url||"")) && !!RC.key && !RC.key.includes("YOUR_");
 const sb = configured() && window.supabase ? window.supabase.createClient(RC.url, RC.key) : null;
