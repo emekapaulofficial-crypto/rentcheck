@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>Prime Estate &amp; Properties — Admin</title>
+<meta name="robots" content="noindex"><title>Staff portal | Prime Estate &amp; Properties — Buy or Rent</title>
 <link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>window.RC_NO_STYLE = true;</script>
-</head><body>
+<link rel="stylesheet" href="theme.css"><script src="site-config.js"></script><script src="rc-theme.js"></script></head><body>
 <div id="rc-header"></div>
 <div id="msg" role="status"></div>
 <main class="portal">
 <section class="view card" id="setup" hidden><p>Add your Supabase URL and anon key in <code>rc-common.js</code>.</p></section>
 <section class="view card" id="auth" hidden><h3>Staff sign in</h3>
- <label>Email</label><input id="a_email" type="email"><label>Password</label><input id="a_pass" type="password">
- <button id="b_in">Sign in</button></section>
+ <p class="hint">For the admin and the office manager. Managers can review website listings only.</p>
+ <label for="a_email">Email</label><input id="a_email" type="email" autocomplete="username"><label for="a_pass">Password</label><input id="a_pass" type="password" autocomplete="current-password">
+ <button id="b_in">Sign in</button>
+ <p class="hint" style="margin-top:14px">No login yet? Create one on the <a href="agent.html#register">sign-up page</a>, then ask the admin to give you manager access.</p></section>
 <section class="view" id="panel" hidden>
- <div class="tabs"><button type="button" class="alt" data-t="apps">Applications</button><button type="button" class="alt" data-t="props">Property queue</button><button type="button" class="alt" data-t="audit">Audit log</button><button type="button" class="push alt" id="out2">Sign out</button></div>
+ <div class="tabs" id="tabs" role="tablist"></div>
+ <p class="hint" id="whoami"></p>
  <div id="content"></div>
 </section>
 </main>
 <script src="rc-common.js"></script>
 <script>
 const LABELS = { agent_identity_checked: "Agent identity checked", property_viewed: "Property viewed", owner_authority_checked: "Owner/authority checked", details_recently_confirmed: "Details recently confirmed" };
+let ROLE = null;
+const TABS = {
+  admin:   [["props", "Listings"], ["apps", "Applications"], ["inbox", "Messages"], ["team", "Team"], ["audit", "Audit log"]],
+  manager: [["props", "Listings"]]
+};
 async function init() {
   if (!configured()) return show("setup");
   const { data: { session } } = await sb.auth.getSession(); session ? enter() : show("auth");
@@ -29,12 +37,19 @@ document.addEventListener("click", async e => { if (e.target.id === "out2") { aw
 async function enter() {
   say("");
   const { data: { user } } = await sb.auth.getUser();
-  const { data: p } = await sb.from("profiles").select("role").eq("id", user.id).single();
-  if (p?.role !== "admin") { show("auth"); return say("This account does not have admin access."); }
-  show("panel"); tab("apps");
+  const { data: p } = await sb.from("profiles").select("role,status,full_name").eq("id", user.id).single();
+  if (!p || p.status !== "active" || !TABS[p.role]) { show("auth"); return say("This account does not have staff access."); }
+  ROLE = p.role;
+  $("tabs").innerHTML = TABS[ROLE].map(([k, label]) => `<button type="button" class="alt" role="tab" data-t="${k}" aria-selected="false">${label}</button>`).join("") + '<button type="button" class="push alt" id="out2">Sign out</button>';
+  $("whoami").textContent = ROLE === "admin" ? "Signed in as admin: full access." : "Signed in as manager: you can review website listings only.";
+  $("tabs").querySelectorAll("[data-t]").forEach(b => b.onclick = () => tab(b.dataset.t));
+  show("panel"); tab("props");
 }
-document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => tab(b.dataset.t));
-function tab(t) { ({ apps, props, audit })[t](); }
+function tab(t) {
+  if (!TABS[ROLE] || !TABS[ROLE].some(x => x[0] === t)) return;
+  $("tabs").querySelectorAll("[data-t]").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t ? "true" : "false"));
+  ({ apps, props, inbox, team, audit })[t]();
+}
 const run = (q) => q.then(r => { if (r.error) say(r.error.message); return r; });
 
 async function apps() {
@@ -59,10 +74,31 @@ async function decide(id, status) {
   if (!r.error) { say("Saved.", true); apps(); } else say(r.error.message);
 }
 
+const PF = { status: "pending_review", q: "" };
+const PF_LABEL = { pending_review: "Waiting for review", needs_changes: "Sent back", approved: "Live", hidden: "Hidden", all: "All" };
 async function props() {
   const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note), property_owner_details(*)").in("status", ["pending_review", "needs_changes", "approved", "hidden"]).order("updated_at", { ascending: false }));
   window._queue = data || [];
-  $("content").innerHTML = (data || []).map(p => `<div class="card"><strong>${esc(p.title)}</strong> <span class="pill">${esc(p.status.replace("_", " "))}</span>
+  if (!window._queue.some(p => p.status === "pending_review") && PF.status === "pending_review") PF.status = "all";
+  drawProps();
+}
+function drawProps() {
+  const all = window._queue || [];
+  const count = k => k === "all" ? all.length : all.filter(p => p.status === k).length;
+  const bar = Object.keys(PF_LABEL).map(k => `<button type="button" class="${PF.status === k ? "on" : ""}" onclick="setPF('${k}')">${PF_LABEL[k]} (${count(k)})</button>`).join("");
+  const rows = all.filter(p => PF.status === "all" || p.status === PF.status);
+  $("content").innerHTML = `<div class="card"><div class="seg" style="flex-wrap:wrap">${bar}</div>
+    <label for="pq">Find a listing (title, area, state or agent)</label><input id="pq" type="search" value="${esc(PF.q)}" placeholder="Start typing to filter this list" oninput="PF.q=this.value;filterProps()"></div>
+    <div id="plist">${rows.map(propCard).join("") || "<div class='card'>Nothing here.</div>"}</div>`;
+  filterProps();
+}
+function setPF(k) { PF.status = k; drawProps(); }
+function filterProps() {
+  const q = PF.q.trim().toLowerCase();
+  document.querySelectorAll("#plist [data-s]").forEach(c => { c.hidden = q && !c.dataset.s.includes(q); });
+}
+function propCard(p) {
+  return `<div class="card" data-s="${esc([p.title, p.area, p.state, p.profiles?.full_name, p.profiles?.agent_code].join(" ").toLowerCase())}"><strong>${esc(p.title)}</strong> <span class="pill ${p.status === "approved" ? "good" : p.status === "pending_review" ? "warn" : ""}">${esc(PF_LABEL[p.status] || p.status.replace("_", " "))}</span>
    <p><small>${esc(p.area)}, ${esc(p.state)} · ${esc(p.property_type)} · ${p.listing_kind === "land" ? "LAND FOR SALE · " + naira(p.sale_price) + " · " + (p.land_size_sqm ? Number(p.land_size_sqm).toLocaleString("en-NG") + " sqm" : "size not set") + " · " + esc(p.land_title || "document not set") : naira(p.rent_per_year) + "/yr · agency " + naira(p.agency_fee) + ", caution " + naira(p.caution_fee) + ", legal " + naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
    <div class="thumbs">${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Property photo" loading="lazy"></a>`).join("")}</div><small>${(p.photo_urls || []).length} photos</small>
    ${ownerBlock(p)}
@@ -71,7 +107,7 @@ async function props() {
    <label>Evidence / what was checked / limitations (required)</label><input id="e_${p.id}">
    <label>Re-check by (optional)</label><input id="r_${p.id}" type="date"><button class="alt" onclick="verify('${p.id}')">Record check</button>
    <label>Decision note</label><input id="n_${p.id}" value="${esc(p.reviewer_note || "")}">
-   <button onclick="review('${p.id}','approved')">Approve &amp; publish</button><button class="alt" onclick="review('${p.id}','needs_changes')">Request changes</button><button class="bad" onclick="review('${p.id}','rejected')">Reject</button><button class="bad" onclick="review('${p.id}','hidden')">Hide</button></div>`).join("") || "<div class='card'>No listings in queue.</div>";
+   <button onclick="review('${p.id}','approved')">Approve &amp; publish</button><button class="alt" onclick="review('${p.id}','needs_changes')">Request changes</button><button class="bad" onclick="review('${p.id}','rejected')">Reject</button><button class="bad" onclick="review('${p.id}','hidden')">Hide</button></div>`;
 }
 function ownerBlock(p) {
   const o = Array.isArray(p.property_owner_details) ? p.property_owner_details[0] : p.property_owner_details;
@@ -95,6 +131,38 @@ async function review(id, status) {
   if (!confirm(`Set listing to "${status}"?`)) return;
   const r = await sb.rpc("review_property", { p_id: id, p_status: status, p_note: note });
   if (!r.error) { say("Saved.", true); props(); } else say(r.error.message);
+}
+async function inbox() {
+  const { data } = await run(sb.from("property_inquiries").select("*, properties:property_id(title)").order("created_at", { ascending: false }).limit(100));
+  window._msgs = data || [];
+  $("content").innerHTML = (data || []).map(m => {
+    const digits = String(m.customer_phone || "").replace(/\D/g, "");
+    const wa = digits.length >= 10 ? "https://wa.me/" + (digits.startsWith("0") ? "234" + digits.slice(1) : digits) : "";
+    return `<div class="card"><strong>${esc(m.customer_name)}</strong> <span class="pill ${m.status === "new" ? "warn" : m.status === "closed" ? "good" : ""}">${esc(m.status)}</span>
+     <p><small>${esc(new Date(m.created_at).toLocaleString())}${m.properties?.title ? " · about: " + esc(m.properties.title) : ""}<br>Phone ${esc(m.customer_phone)}${m.customer_email ? " · " + esc(m.customer_email) : ""}</small></p>
+     <p>${esc(m.message)}</p>
+     ${wa ? `<a class="btn" href="${esc(wa)}" target="_blank" rel="noopener">Reply on WhatsApp</a> ` : ""}
+     <button class="alt" onclick="setMsg('${m.id}','contacted')">Mark contacted</button><button class="alt" onclick="setMsg('${m.id}','closed')">Close</button><button class="bad" onclick="setMsg('${m.id}','spam')">Spam</button></div>`;
+  }).join("") || "<div class='card'>No messages yet.</div>";
+}
+async function setMsg(id, status) {
+  const r = await sb.from("property_inquiries").update({ status }).eq("id", id);
+  r.error ? say(r.error.message) : (say("Saved.", true), inbox());
+}
+async function team() {
+  const { data } = await run(sb.from("profiles").select("id,full_name,role,status").in("role", ["admin", "manager"]).order("role"));
+  $("content").innerHTML = `<div class="card"><h3>Give or remove manager access</h3>
+    <p class="hint">A manager can review and publish website listings only. They cannot see agent applications, messages, the team list or the audit log. The person must already have a login (they can create one on the sign-up page).</p>
+    <label for="t_email">Their email address</label><input id="t_email" type="email">
+    <button onclick="setRole('manager')">Make manager</button><button class="alt" onclick="setRole('customer')">Remove manager access</button></div>
+    <div class="card"><h3>Current staff</h3>${(data || []).map(p => `<p><strong>${esc(p.full_name || "(no name yet)")}</strong> <span class="pill ${p.role === "admin" ? "good" : ""}">${esc(p.role)}</span> <small>${esc(p.status)} · id ${esc(String(p.id).slice(0, 8))}</small></p>`).join("") || "No staff yet."}</div>`;
+}
+async function setRole(role) {
+  const email = $("t_email").value.trim();
+  if (!email) return say("Enter the person's email address.");
+  if (!confirm(role === "manager" ? `Give manager access to ${email}?` : `Remove manager access from ${email}?`)) return;
+  const r = await sb.rpc("set_staff_role", { p_email: email, p_role: role });
+  r.error ? say(r.error.message) : (say("Saved.", true), team());
 }
 async function audit() {
   const { data } = await run(sb.from("audit_log").select("*").order("created_at", { ascending: false }).limit(100));
