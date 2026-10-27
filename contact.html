@@ -1,6 +1,84 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Contact Prime Estate &amp; Properties — Prime Estate &amp; Properties helps Nigerian renters make more informed rental decisions."><title>Contact Prime Estate &amp; Properties | Prime Estate &amp; Properties</title><link rel="stylesheet" href="site-pages.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Contact the Prime Estate &amp; Properties head office in Ado-Ekiti, send a message, or find the right place to ask about homes, listing a property or becoming an agent."><title>Contact us | Prime Estate &amp; Properties — Buy or Rent</title><link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="theme.css"><script src="site-config.js"></script><script src="rc-theme.js"></script><script>window.RC_NO_STYLE = true;</script></head><body>
 <div id="rc-header"></div>
-<section class="hero"><div class="wrap"><h1>Questions, feedback or a concern?</h1><p class="lead">Use the contact details published by Prime Estate &amp; Properties and never include passwords or sensitive identity documents in an ordinary message.</p><div class="actions"><a class="btn" href="index.html#homes">Browse homes</a><a class="btn alt" href="safety.html">Our safety approach</a></div></div></section>
-<main><div class="wrap"><div class="panel"><h2>Contact options</h2><p>For listing questions, contact the agent shown with that listing and confirm availability before travelling.</p><p>For platform support, agent onboarding or partnership enquiries, contact the Prime Estate &amp; Properties team through the official channel provided by the business owner.</p><p>For suspected fraud or misconduct, use the dedicated report page so the concern can be recorded and reviewed.</p><div class="actions"><a class="btn" href="complaints.html">Report a concern</a><a class="btn alt" href="agent.html">Agent portal</a></div></div><p class="muted">No support email or phone number is hard-coded here because an unconfirmed contact would mislead customers. Add the official business contact before public launch.</p></div></main>
-<div id="rc-footer"></div><script src="rc-nav.js"></script></body></html>
+<section class="hero"><div class="wrap"><p class="eyebrow">Contact</p><h1>Talk to our head office</h1><p class="lead">Questions about a home, listing a property, joining as an agent, or a concern? Message the head office below, or choose the option that fits you best. Please never include passwords or ID documents in an ordinary message.</p><div class="actions"><a class="btn" href="#message">Send a message</a><a class="btn alt" href="complaints.html">Report a concern</a></div></div></section>
+<main><div class="wrap">
+
+<h2>Who should I contact?</h2>
+<div class="rc-who">
+  <article class="panel"><h3>I am looking for a home or land</h3><p>Contact the agent shown on the listing, then confirm availability before you travel.</p><a class="btn" href="index.html#homes">Browse homes</a></article>
+  <article class="panel"><h3>I own a property</h3><p>See how a verified agent lists it for you and how our team checks it first.</p><a class="btn alt" href="owners.html">List your property</a></article>
+  <article class="panel"><h3>I want to be an agent</h3><p>Create an account, apply, and get your agent ID after review.</p><a class="btn alt" href="agents.html">Become an agent</a></article>
+  <article class="panel"><h3>Something went wrong</h3><p>Report a suspected fake listing, a wrong fee or agent misconduct.</p><a class="btn alt" href="complaints.html">Report a concern</a></article>
+</div>
+
+<div class="rc-two" id="message">
+  <section class="panel" id="officePanel" aria-labelledby="officeTitle">
+    <h2 id="officeTitle">Head office</h2>
+    <ul class="rc-list" id="officeList"></ul>
+    <div class="actions" id="officeActions"></div>
+    <p class="muted" id="officeNote"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="formTitle">
+    <h2 id="formTitle">Send us a message</h2>
+    <div class="rc-field"><label for="c_name">Your name</label><input id="c_name" autocomplete="name" maxlength="120"></div>
+    <div class="rc-field"><label for="c_phone">Phone or WhatsApp number</label><input id="c_phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30"></div>
+    <div class="rc-field"><label for="c_email">Email (optional)</label><input id="c_email" type="email" autocomplete="email" maxlength="160"></div>
+    <div class="rc-field"><label for="c_topic">What is it about?</label>
+      <select id="c_topic"><option>A question about a home or land</option><option>Listing my property</option><option>Becoming an agent</option><option>Partnership or business</option><option>Something else</option></select></div>
+    <div class="rc-field"><label for="c_msg">Your message</label><textarea id="c_msg" maxlength="1500"></textarea></div>
+    <div class="rc-hp" aria-hidden="true"><label>Leave this empty<input id="c_site" tabindex="-1" autocomplete="off"></label></div>
+    <button type="button" class="btn" id="c_send">Send message</button>
+    <p class="rc-form-msg" id="c_note" role="status"></p>
+    <p class="muted" style="font-size:.88rem">We use your details only to reply to you. For a suspected fraud, use <a href="complaints.html">Report a concern</a> instead.</p>
+  </section>
+</div>
+
+</div></main>
+<div id="rc-footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="rc-common.js"></script>
+<script>
+(function () {
+  var O = (window.SITE && window.SITE.office) || {};
+  var place = [O.address, O.city, O.state].filter(Boolean);
+  var rows = '';
+  if (place.length) rows += '<li><b>Where</b>' + place.map(esc).join(', ') + '</li>';
+  if (O.hours) rows += '<li><b>Opening hours</b>' + esc(O.hours) + '</li>';
+  if (O.phone) rows += '<li><b>Phone</b><a href="tel:' + esc(String(O.phone).replace(/\s+/g, '')) + '">' + esc(O.phone) + '</a></li>';
+  if (O.email) rows += '<li><b>Email</b><a href="mailto:' + esc(O.email) + '">' + esc(O.email) + '</a></li>';
+  document.getElementById('officeList').innerHTML = rows;
+  var acts = '';
+  if (O.whatsapp) acts += '<a class="btn" rel="noopener" href="https://wa.me/' + esc(String(O.whatsapp).replace(/\D/g, '')) + '">Chat on WhatsApp</a>';
+  if (O.phone) acts += '<a class="btn alt" href="tel:' + esc(String(O.phone).replace(/\s+/g, '')) + '">Call us</a>';
+  document.getElementById('officeActions').innerHTML = acts;
+  document.getElementById('officeNote').textContent = (O.phone || O.whatsapp || O.email)
+    ? 'Visits are best after you book a time, so someone is there to help you.'
+    : 'Send us a message with the form and the head-office team will reply to you.';
+
+  var sending = false;
+  function note(text, ok) { var n = document.getElementById('c_note'); n.textContent = text; n.className = 'rc-form-msg show ' + (ok ? 'ok' : 'err'); }
+  document.getElementById('c_send').addEventListener('click', async function () {
+    if (sending) return;
+    var name = $('c_name').value.trim(), phone = $('c_phone').value.trim(), email = $('c_email').value.trim(),
+        topic = $('c_topic').value, msg = $('c_msg').value.trim();
+    if ($('c_site').value) return;                       // spam trap: real people never fill this
+    if (name.length < 2) return note('Please enter your name.');
+    if (phone.replace(/\D/g, '').length < 7) return note('Please enter a phone or WhatsApp number we can reply to.');
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return note('That email address does not look right.');
+    if (msg.length < 10) return note('Please write a little more so we can help you (at least 10 characters).');
+    if (!sb) return note('Messages are not switched on yet. Please use the phone or WhatsApp details on this page, or try again later.');
+    var last = 0; try { last = Number(sessionStorage.getItem('rc_last_msg') || 0); } catch (e) {}
+    if (Date.now() - last < 30000) return note('Your last message was sent a moment ago. Please wait a little before sending another.');
+    sending = true; this.disabled = true;
+    var r = await sb.from('property_inquiries').insert({ customer_name: name, customer_phone: phone, customer_email: email || null, message: '[' + topic + '] ' + msg });
+    sending = false; this.disabled = false;
+    if (r.error) return note('Sorry, your message could not be sent. Please try again, or use WhatsApp or phone.');
+    try { sessionStorage.setItem('rc_last_msg', String(Date.now())); } catch (e) {}
+    ['c_name', 'c_phone', 'c_email', 'c_msg'].forEach(function (id) { $(id).value = ''; });
+    note('Thank you. Your message has reached the head office and we will reply to you soon.', true);
+  });
+})();
+</script>
+<script src="rc-nav.js"></script></body></html>
