@@ -23,7 +23,7 @@
 <script src="rc-common.js"></script>
 <script>
 const LABELS = { agent_identity_checked: "Agent identity checked", property_viewed: "Property viewed", owner_authority_checked: "Owner/authority checked", details_recently_confirmed: "Details recently confirmed" };
-let ROLE = null;
+let ROLE = null, IS_OWNER = false;
 const TABS = {
   admin:   [["props", "Listings"], ["apps", "Applications"], ["inbox", "Messages"], ["team", "Team"], ["audit", "Audit log"]],
   manager: [["props", "Listings"]]
@@ -37,11 +37,11 @@ document.addEventListener("click", async e => { if (e.target.id === "out2") { aw
 async function enter() {
   say("");
   const { data: { user } } = await sb.auth.getUser();
-  const { data: p } = await sb.from("profiles").select("role,status,full_name").eq("id", user.id).single();
+  const { data: p } = await sb.from("profiles").select("role,status,full_name,is_owner").eq("id", user.id).single();
   if (!p || p.status !== "active" || !TABS[p.role]) { show("auth"); return say("This account does not have staff access."); }
-  ROLE = p.role;
+  ROLE = p.role; IS_OWNER = !!p.is_owner;
   $("tabs").innerHTML = TABS[ROLE].map(([k, label]) => `<button type="button" class="alt" role="tab" data-t="${k}" aria-selected="false">${label}</button>`).join("") + '<button type="button" class="push alt" id="out2">Sign out</button>';
-  $("whoami").textContent = ROLE === "admin" ? "Signed in as admin: full access." : "Signed in as manager: you can review website listings only.";
+  $("whoami").textContent = ROLE === "admin" ? (IS_OWNER ? "Signed in as main admin: full access." : "Signed in as admin: full access.") : "Signed in as manager: you can review website listings only.";
   $("tabs").querySelectorAll("[data-t]").forEach(b => b.onclick = () => tab(b.dataset.t));
   show("panel"); tab("props");
 }
@@ -218,18 +218,30 @@ async function setMsg(id, status) {
   r.error ? say(r.error.message) : (say("Saved.", true), inbox());
 }
 async function team() {
-  const { data } = await run(sb.from("profiles").select("id,full_name,role,status").in("role", ["admin", "manager"]).order("role"));
+  const { data } = await run(sb.from("profiles").select("id,full_name,role,status,is_owner").in("role", ["admin", "manager"]).order("role"));
   $("content").innerHTML = `<div class="card"><h3>Give or remove manager access</h3>
     <p class="hint">A manager can review and publish website listings only. They cannot see agent applications, messages, the team list or the audit log. The person must already have a login (they can create one on the sign-up page).</p>
     <label for="t_email">Their email address</label><input id="t_email" type="email">
     <button onclick="setRole('manager')">Make manager</button><button class="alt" onclick="setRole('customer')">Remove manager access</button></div>
-    <div class="card"><h3>Current staff</h3>${(data || []).map(p => `<p><strong>${esc(p.full_name || "(no name yet)")}</strong> <span class="pill ${p.role === "admin" ? "good" : ""}">${esc(p.role)}</span> <small>${esc(p.status)} · id ${esc(String(p.id).slice(0, 8))}</small></p>`).join("") || "No staff yet."}</div>`;
+    ${IS_OWNER ? `<div class="card"><h3>Second admin (main admin only)</h3>
+     <p class="hint">A second admin has full access but cannot remove you. Only you can add or remove admins. The person must already have a login.</p>
+     <label for="ad_email">Their email address</label><input id="ad_email" type="email">
+     <button onclick="setAdmin(true)">Make admin</button><button class="bad" onclick="setAdmin(false)">Remove admin</button></div>` : ""}
+    <div class="card"><h3>Current staff</h3>${(data || []).map(p => `<p><strong>${esc(p.full_name || "(no name yet)")}</strong> <span class="pill ${p.role === "admin" ? "good" : ""}">${p.is_owner ? "main admin" : esc(p.role)}</span> <small>${esc(p.status)} · id ${esc(String(p.id).slice(0, 8))}</small></p>`).join("") || "No staff yet."}</div>`;
 }
 async function setRole(role) {
   const email = $("t_email").value.trim();
   if (!email) return say("Enter the person's email address.");
   if (!confirm(role === "manager" ? `Give manager access to ${email}?` : `Remove manager access from ${email}?`)) return;
   const r = await sb.rpc("set_staff_role", { p_email: email, p_role: role });
+  r.error ? say(r.error.message) : (say("Saved.", true), team());
+}
+async function setAdmin(make) {
+  if (!IS_OWNER) return say("Only the main admin can do this.");
+  const email = $("ad_email").value.trim();
+  if (!email) return say("Enter the person's email address.");
+  if (!confirm(make ? `Make ${email} an admin?` : `Remove admin access from ${email}?`)) return;
+  const r = await sb.rpc("set_admin_access", { p_email: email, p_make_admin: make });
   r.error ? say(r.error.message) : (say("Saved.", true), team());
 }
 async function audit() {
