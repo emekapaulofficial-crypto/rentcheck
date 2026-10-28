@@ -243,6 +243,13 @@ function propertyImage(p){ return (p.photos&&p.photos[0])||PLACEHOLDER; }
 function badgeHTML(p){
  return p._verified ? `<span class="badge">${ic("shield")}Checked by Prime Estate &amp; Properties</span>` : `<span class="badge no">${ic("open")}Not yet verified</span>`;
 }
+function videoHTML(p){
+ const u=normalise(p.Video); if(!u)return "";
+ const yt=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([\w-]{11})/i);
+ if(yt)return `<div class="pd-sec"><h3>Video tour</h3><div style="position:relative;padding-top:56.25%"><iframe src="https://www.youtube.com/embed/${yt[1]}" title="Video tour" style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:10px" allow="fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div></div>`;
+ if(/\.(mp4|webm|mov)(\?|$)/i.test(u)||u.includes("/property-videos/"))return `<div class="pd-sec"><h3>Video tour</h3><video src="${escapeHTML(u)}" controls playsinline preload="metadata" style="width:100%;max-height:420px;border-radius:10px;background:#000"></video></div>`;
+ return `<div class="pd-sec"><h3>Video tour</h3><a class="btn alt small" href="${escapeHTML(u)}" target="_blank" rel="noopener noreferrer">Watch the video</a></div>`;
+}
 function nearHTML(p){const lm=normalise(p.Landmark),z=normalise(p.Zipcode);return (lm||z)?`<p class="hc-near" style="margin:2px 0 0;font-size:13px;opacity:.8">${lm?"Near "+escapeHTML(lm):""}${lm&&z?" · ":""}${z?"Zip "+escapeHTML(z):""}</p>`:"";}
 function propertyCard(p,index){
  const name=normalise(p["Property Name"])||"Rental property";
@@ -374,7 +381,7 @@ async function loadProperties(){
    Bedrooms:r.bedrooms??"",Bathrooms:r.bathrooms??"","Rent Per Year (₦)":r.rent_per_year,"Agency Fee (₦)":r.agency_fee,"Legal Fee (₦)":r.legal_fee,"Caution Fee (₦)":r.caution_fee,
    "Short Description":r.description,"Agent Name":r.agent_name,"Agent Phone (WhatsApp)":r.agent_whatsapp||r.agent_phone,
    photos:r.photo_urls||[],_verified:(r.verified_labels||[]).length>=4,_labels:r.verified_labels||[],
-   Landmark:r.landmark||"",Zipcode:r.zipcode||"",Kind:r.listing_kind||"house","Sale Price (₦)":r.sale_price,"Land Size (sqm)":r.land_size_sqm,"Land Title":r.land_title
+   Video:r.video_url||"",Landmark:r.landmark||"",Zipcode:r.zipcode||"",Kind:r.listing_kind||"house","Sale Price (₦)":r.sale_price,"Land Size (sqm)":r.land_size_sqm,"Land Title":r.land_title
   }));
   allProperties=mapped.filter(p=>p.Kind!=="land");allLands=mapped.filter(p=>p.Kind==="land");
   populateStateOptions();renderPropertyList();renderLandList();
@@ -416,7 +423,7 @@ function openDetails(index,list=visibleProperties){
     ${badgeHTML(p)}
     ${multi?`<button class="pd-arrow prev" type="button" data-gal-step="-1" aria-label="Previous photo">${ic("left")}</button><button class="pd-arrow next" type="button" data-gal-step="1" aria-label="Next photo">${ic("right")}</button><span class="pd-count" id="galCount">1 / ${gal.list.length}</span>`:""}
    </div>
-   ${multi?`<div class="pd-thumbs">${gal.list.map((u,i)=>`<button type="button" data-gal-idx="${i}" aria-label="Show photo ${i+1}" aria-current="${i===0}"><img src="${escapeHTML(u)}" alt="" loading="lazy"></button>`).join("")}</div>`:""}
+   ${multi?`<div class="pd-thumbs">${gal.list.map((u,i)=>`<button type="button" data-gal-idx="${i}" aria-label="Show photo ${i+1}" aria-current="${i===0}"><img src="${escapeHTML(u)}" alt="" loading="lazy"></button>`).join("")}</div>`:""}${videoHTML(p)}
   </div>
   <div class="pd-info">
    <button class="modal-close" type="button" data-close-modal aria-label="Close details">${ic("x")}</button>
@@ -433,6 +440,8 @@ function openDetails(index,list=visibleProperties){
  </div>`;
  document.getElementById("propertyDetailModal").showModal();
 }
+
+document.getElementById("propertyDetailModal").addEventListener("close",()=>{document.querySelectorAll("#propertyDetailContent video").forEach(v=>v.pause());const f=document.querySelector("#propertyDetailContent iframe");if(f)f.src=f.src;});
 
 /* ----- events ----- */
 function goToHomes(){renderPropertyList();renderLandList();document.getElementById("homes").scrollIntoView({behavior:"smooth"});}
