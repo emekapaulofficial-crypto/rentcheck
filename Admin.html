@@ -75,9 +75,9 @@ async function decide(id, status) {
 }
 
 const PF = { status: "pending_review", q: "" };
-const PF_LABEL = { pending_review: "Waiting for review", needs_changes: "Sent back", approved: "Live", hidden: "Hidden", all: "All" };
+const PF_LABEL = { pending_review: "Waiting for review", needs_changes: "Sent back", approved: "Live", hidden: "Hidden", rejected: "Rejected", rented: "Rented / sold", draft: "Drafts", all: "All" };
 async function props() {
-  const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note), property_owner_details(*)").in("status", ["pending_review", "needs_changes", "approved", "hidden"]).order("updated_at", { ascending: false }));
+  const { data } = await run(sb.from("properties").select("*, profiles:agent_id(full_name,agent_code), verification_records(label,verified_at,evidence_note), property_owner_details(*)").in("status", ["pending_review", "needs_changes", "approved", "hidden", "rejected", "rented", "draft"]).order("updated_at", { ascending: false }));
   window._queue = data || [];
   if (!window._queue.some(p => p.status === "pending_review") && PF.status === "pending_review") PF.status = "all";
   drawProps();
@@ -98,8 +98,8 @@ function filterProps() {
   document.querySelectorAll("#plist [data-s]").forEach(c => { c.hidden = q && !c.dataset.s.includes(q); });
 }
 function propCard(p) {
-  return `<div class="card" data-s="${esc([p.title, p.area, p.state, p.profiles?.full_name, p.profiles?.agent_code].join(" ").toLowerCase())}"><strong>${esc(p.title)}</strong> <span class="pill ${p.status === "approved" ? "good" : p.status === "pending_review" ? "warn" : ""}">${esc(PF_LABEL[p.status] || p.status.replace("_", " "))}</span>
-   <p><small>${esc(p.area)}, ${esc(p.state)} · ${esc(p.property_type)} · ${p.listing_kind === "land" ? "LAND FOR SALE · " + naira(p.sale_price) + " · " + (p.land_size_sqm ? Number(p.land_size_sqm).toLocaleString("en-NG") + " sqm" : "size not set") + " · " + esc(p.land_title || "document not set") : naira(p.rent_per_year) + "/yr · agency " + naira(p.agency_fee) + ", caution " + naira(p.caution_fee) + ", legal " + naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
+  return `<div class="card" data-s="${esc([p.title, p.area, p.state, p.landmark, p.zipcode, p.profiles?.full_name, p.profiles?.agent_code].join(" ").toLowerCase())}"><strong>${esc(p.title)}</strong> <span class="pill ${p.status === "approved" ? "good" : p.status === "pending_review" ? "warn" : ""}">${esc(PF_LABEL[p.status] || p.status.replace("_", " "))}</span>
+   <p><small>${esc(p.area)}, ${esc(p.state)}${p.zipcode ? " " + esc(p.zipcode) : ""}${p.landmark ? " · Near " + esc(p.landmark) : ""} · ${esc(p.property_type)} · ${p.listing_kind === "land" ? "LAND FOR SALE · " + naira(p.sale_price) + " · " + (p.land_size_sqm ? Number(p.land_size_sqm).toLocaleString("en-NG") + " sqm" : "size not set") + " · " + esc(p.land_title || "document not set") : naira(p.rent_per_year) + "/yr · agency " + naira(p.agency_fee) + ", caution " + naira(p.caution_fee) + ", legal " + naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
    <div class="thumbs">${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Property photo" loading="lazy"></a>`).join("")}</div><small>${(p.photo_urls || []).length} photos</small>
    ${ownerBlock(p)}
    <p><small>Checks: ${(p.verification_records || []).map(v => esc(LABELS[v.label])).join(", ") || "none recorded"}</small></p>
@@ -107,7 +107,8 @@ function propCard(p) {
    <label>Evidence / what was checked / limitations (required)</label><input id="e_${p.id}">
    <label>Re-check by (optional)</label><input id="r_${p.id}" type="date"><button class="alt" onclick="verify('${p.id}')">Record check</button>
    <label>Decision note</label><input id="n_${p.id}" value="${esc(p.reviewer_note || "")}">
-   <button onclick="review('${p.id}','approved')">Approve &amp; publish</button><button class="alt" onclick="review('${p.id}','needs_changes')">Request changes</button><button class="bad" onclick="review('${p.id}','rejected')">Reject</button><button class="bad" onclick="review('${p.id}','hidden')">Hide</button></div>`;
+   <button onclick="review('${p.id}','approved')">Approve &amp; publish</button><button class="alt" onclick="review('${p.id}','needs_changes')">Request changes</button><button class="bad" onclick="review('${p.id}','rejected')">Reject</button><button class="bad" onclick="review('${p.id}','hidden')">Hide</button>
+   ${ROLE === "admin" ? `<div style="border-top:1px solid #d5ddd8;margin-top:14px;padding-top:6px"><button class="alt" onclick="editListing('${p.id}')">Edit listing</button><button class="bad" onclick="delListing('${p.id}')">Delete permanently</button></div>` : ""}</div>`;
 }
 function ownerBlock(p) {
   const o = Array.isArray(p.property_owner_details) ? p.property_owner_details[0] : p.property_owner_details;
@@ -131,6 +132,70 @@ async function review(id, status) {
   if (!confirm(`Set listing to "${status}"?`)) return;
   const r = await sb.rpc("review_property", { p_id: id, p_status: status, p_note: note });
   if (!r.error) { say("Saved.", true); props(); } else say(r.error.message);
+}
+
+/* ---------- admin: edit any listing (even live) and delete permanently ---------- */
+const HOUSE_TYPES = ["Self-contained", "Room / studio", "Flat / apartment", "Duplex", "House"];
+const LAND_TYPES = ["Residential land", "Commercial land", "Farmland", "Mixed-use land"];
+const LAND_DOCS = ["Certificate of Occupancy (C of O)", "Governor's Consent", "Registered Deed of Assignment", "Survey plan only", "Family land (no title yet)", "Other / ask agent"];
+let EDIT = null;
+const opts = (arr, sel) => (arr.includes(sel) || !sel ? arr : [sel, ...arr]).map(v => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(v)}</option>`).join("");
+function editListing(id) {
+  if (ROLE !== "admin") return say("Only the admin can edit listings.");
+  const p = (window._queue || []).find(x => x.id === id); if (!p) return;
+  const land = p.listing_kind === "land";
+  EDIT = { id, land, photos: [...(p.photo_urls || [])] };
+  const val = v => esc(v ?? "");
+  $("content").innerHTML = `<div class="card"><h3>Edit listing${p.status === "approved" ? " (this one is LIVE, changes show on the website right away)" : ""}</h3>
+   <label for="ed_t">Title</label><input id="ed_t" value="${val(p.title)}">
+   <div class="row"><div><label for="ed_state">State</label><select id="ed_state">${opts(STATES, p.state)}</select></div><div><label for="ed_area">Area / neighbourhood</label><input id="ed_area" value="${val(p.area)}"></div></div>
+   <div class="row"><div><label for="ed_lm">Nearest landmark</label><input id="ed_lm" value="${val(p.landmark)}" placeholder="e.g. Opposite First Bank"></div><div><label for="ed_zip">Zip / postal code</label><input id="ed_zip" inputmode="numeric" maxlength="6" value="${val(p.zipcode)}" placeholder="e.g. 360001"></div></div>
+   <label for="ed_type">Property type</label><select id="ed_type">${opts(land ? LAND_TYPES : HOUSE_TYPES, p.property_type)}</select>
+   ${land ? `<div class="row"><div><label for="ed_price">Selling price (₦)</label><input id="ed_price" type="number" min="1" value="${val(p.sale_price)}"></div><div><label for="ed_size">Land size (sqm)</label><input id="ed_size" type="number" min="1" value="${val(p.land_size_sqm)}"></div></div>
+     <label for="ed_ltitle">Land document</label><select id="ed_ltitle">${opts(LAND_DOCS, p.land_title || LAND_DOCS[0])}</select>`
+   : `<div class="row"><div><label for="ed_bed">Bedrooms</label><input id="ed_bed" type="number" min="0" value="${val(p.bedrooms)}"></div><div><label for="ed_bath">Bathrooms</label><input id="ed_bath" type="number" min="0" value="${val(p.bathrooms)}"></div></div>
+     <label for="ed_rent">Rent per year (₦)</label><input id="ed_rent" type="number" min="1" value="${val(p.rent_per_year)}">
+     <div class="row"><div><label for="ed_ag">Agency fee (₦)</label><input id="ed_ag" type="number" min="0" value="${val(p.agency_fee)}"></div><div><label for="ed_ca">Caution fee (₦)</label><input id="ed_ca" type="number" min="0" value="${val(p.caution_fee)}"></div></div>
+     <label for="ed_le">Legal fee (₦)</label><input id="ed_le" type="number" min="0" value="${val(p.legal_fee)}">`}
+   <label for="ed_desc">Description</label><textarea id="ed_desc" rows="5">${val(p.description)}</textarea>
+   <label>Photos (first one is the cover)</label><div id="ed_ph" class="thumbs"></div>
+   <button type="button" onclick="saveEdit()">Save changes</button><button type="button" class="alt" onclick="props()">Cancel</button></div>`;
+  drawEditPhotos(); scrollTo(0, 0);
+}
+function drawEditPhotos() {
+  $("ed_ph").innerHTML = EDIT.photos.map((u, i) => `<div style="display:inline-block;margin:0 8px 8px 0;text-align:center"><img src="${esc(u)}" alt="Photo ${i + 1}" style="width:96px;height:72px;object-fit:cover;border-radius:6px;display:block"><small>${i === 0 ? "Cover" : ""}</small><br>${i > 0 ? `<button type="button" class="alt" style="padding:4px 8px;margin:2px" onclick="edCover(${i})">★</button>` : ""}<button type="button" class="bad" style="padding:4px 8px;margin:2px" onclick="edDrop(${i})">✕</button></div>`).join("") || "<small>No photos.</small>";
+}
+function edCover(i) { EDIT.photos.unshift(EDIT.photos.splice(i, 1)[0]); drawEditPhotos(); }
+function edDrop(i) { EDIT.photos.splice(i, 1); drawEditPhotos(); }
+async function saveEdit() {
+  const v = id => $(id).value.trim();
+  if (v("ed_t").length < 5 || !v("ed_area")) return say("Add a title (at least 5 letters) and the area.");
+  if (v("ed_zip") && !/^\d{6}$/.test(v("ed_zip"))) return say("Zip code must be 6 digits, e.g. 360001 (or leave it empty).");
+  const data = { title: v("ed_t"), state: v("ed_state"), area: v("ed_area"), landmark: v("ed_lm"), zipcode: v("ed_zip"), property_type: v("ed_type"), description: v("ed_desc"), photo_urls: EDIT.photos };
+  if (EDIT.land) {
+    if (!(Number(v("ed_price")) > 0)) return say("Add the selling price.");
+    Object.assign(data, { sale_price: v("ed_price"), land_size_sqm: v("ed_size"), land_title: v("ed_ltitle") });
+  } else {
+    if (!(Number(v("ed_rent")) > 0)) return say("Add the yearly rent.");
+    Object.assign(data, { bedrooms: v("ed_bed"), bathrooms: v("ed_bath"), rent_per_year: v("ed_rent"), agency_fee: v("ed_ag"), caution_fee: v("ed_ca"), legal_fee: v("ed_le") });
+  }
+  const r = await sb.rpc("admin_update_property", { p_id: EDIT.id, p_data: data });
+  if (r.error) return say(r.error.message);
+  say("Listing updated.", true); EDIT = null; props();
+}
+async function delListing(id) {
+  if (ROLE !== "admin") return say("Only the admin can delete listings.");
+  const p = (window._queue || []).find(x => x.id === id); if (!p) return;
+  if (!confirm(`PERMANENTLY delete "${p.title}"?\n\nThis removes the listing, its photos, owner details and checks. It cannot be undone. (If you only want to take it off the website, use Hide instead.)`)) return;
+  if (prompt('Type DELETE to confirm') !== "DELETE") return say("Delete cancelled.");
+  const o = Array.isArray(p.property_owner_details) ? p.property_owner_details[0] : p.property_owner_details;
+  const pathOf = (u, b) => { const k = "/" + b + "/", i = String(u).indexOf(k); return i < 0 ? null : decodeURIComponent(String(u).slice(i + k.length).split("?")[0]); };
+  const photoPaths = (p.photo_urls || []).map(u => pathOf(u, "property-photos")).filter(Boolean);
+  const docPaths = (o && o.authority_doc_paths) || [];
+  const r = await sb.rpc("admin_delete_property", { p_id: id });
+  if (r.error) return say(r.error.message);
+  try { if (photoPaths.length) await sb.storage.from("property-photos").remove(photoPaths); if (docPaths.length) await sb.storage.from("owner-docs").remove(docPaths); } catch (_) { /* listing is already deleted; leftover files are harmless */ }
+  say("Listing deleted permanently.", true); props();
 }
 async function inbox() {
   const { data } = await run(sb.from("property_inquiries").select("*, properties:property_id(title)").order("created_at", { ascending: false }).limit(100));
