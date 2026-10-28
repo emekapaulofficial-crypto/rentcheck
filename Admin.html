@@ -100,7 +100,7 @@ function filterProps() {
 function propCard(p) {
   return `<div class="card" data-s="${esc([p.title, p.area, p.state, p.landmark, p.zipcode, p.profiles?.full_name, p.profiles?.agent_code].join(" ").toLowerCase())}"><strong>${esc(p.title)}</strong> <span class="pill ${p.status === "approved" ? "good" : p.status === "pending_review" ? "warn" : ""}">${esc(PF_LABEL[p.status] || p.status.replace("_", " "))}</span>
    <p><small>${esc(p.area)}, ${esc(p.state)}${p.zipcode ? " " + esc(p.zipcode) : ""}${p.landmark ? " · Near " + esc(p.landmark) : ""} · ${esc(p.property_type)} · ${p.listing_kind === "land" ? "LAND FOR SALE · " + naira(p.sale_price) + " · " + (p.land_size_sqm ? Number(p.land_size_sqm).toLocaleString("en-NG") + " sqm" : "size not set") + " · " + esc(p.land_title || "document not set") : naira(p.rent_per_year) + "/yr · agency " + naira(p.agency_fee) + ", caution " + naira(p.caution_fee) + ", legal " + naira(p.legal_fee)}<br>Agent: ${esc(p.profiles?.full_name)} (${esc(p.profiles?.agent_code)})<br>${esc(p.description)}</small></p>
-   <div class="thumbs">${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Property photo" loading="lazy"></a>`).join("")}</div><small>${(p.photo_urls || []).length} photos</small>
+   <div class="thumbs">${(p.photo_urls || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Property photo" loading="lazy"></a>`).join("")}</div><small>${(p.photo_urls || []).length} photos${p.video_url ? ` · <a href="${esc(p.video_url)}" target="_blank" rel="noopener">Watch video</a>` : ""}</small>
    ${ownerBlock(p)}
    <p><small>Checks: ${(p.verification_records || []).map(v => esc(LABELS[v.label])).join(", ") || "none recorded"}</small></p>
    <label>Verification check</label><select id="l_${p.id}">${Object.entries(LABELS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
@@ -158,6 +158,7 @@ function editListing(id) {
      <div class="row"><div><label for="ed_ag">Agency fee (₦)</label><input id="ed_ag" type="number" min="0" value="${val(p.agency_fee)}"></div><div><label for="ed_ca">Caution fee (₦)</label><input id="ed_ca" type="number" min="0" value="${val(p.caution_fee)}"></div></div>
      <label for="ed_le">Legal fee (₦)</label><input id="ed_le" type="number" min="0" value="${val(p.legal_fee)}">`}
    <label for="ed_desc">Description</label><textarea id="ed_desc" rows="5">${val(p.description)}</textarea>
+   <label for="ed_video">Video link (YouTube link or uploaded video). Clear this box to remove the video.</label><input id="ed_video" value="${val(p.video_url)}" placeholder="https://youtu.be/...">
    <label>Photos (first one is the cover)</label><div id="ed_ph" class="thumbs"></div>
    <button type="button" onclick="saveEdit()">Save changes</button><button type="button" class="alt" onclick="props()">Cancel</button></div>`;
   drawEditPhotos(); scrollTo(0, 0);
@@ -170,8 +171,9 @@ function edDrop(i) { EDIT.photos.splice(i, 1); drawEditPhotos(); }
 async function saveEdit() {
   const v = id => $(id).value.trim();
   if (v("ed_t").length < 5 || !v("ed_area")) return say("Add a title (at least 5 letters) and the area.");
+  if (v("ed_video") && !/^https?:\/\//i.test(v("ed_video"))) return say("The video link must start with https://");
   if (v("ed_zip") && !/^\d{6}$/.test(v("ed_zip"))) return say("Zip code must be 6 digits, e.g. 360001 (or leave it empty).");
-  const data = { title: v("ed_t"), state: v("ed_state"), area: v("ed_area"), landmark: v("ed_lm"), zipcode: v("ed_zip"), property_type: v("ed_type"), description: v("ed_desc"), photo_urls: EDIT.photos };
+  const data = { title: v("ed_t"), state: v("ed_state"), area: v("ed_area"), landmark: v("ed_lm"), zipcode: v("ed_zip"), property_type: v("ed_type"), description: v("ed_desc"), video_url: v("ed_video"), photo_urls: EDIT.photos };
   if (EDIT.land) {
     if (!(Number(v("ed_price")) > 0)) return say("Add the selling price.");
     Object.assign(data, { sale_price: v("ed_price"), land_size_sqm: v("ed_size"), land_title: v("ed_ltitle") });
@@ -192,9 +194,10 @@ async function delListing(id) {
   const pathOf = (u, b) => { const k = "/" + b + "/", i = String(u).indexOf(k); return i < 0 ? null : decodeURIComponent(String(u).slice(i + k.length).split("?")[0]); };
   const photoPaths = (p.photo_urls || []).map(u => pathOf(u, "property-photos")).filter(Boolean);
   const docPaths = (o && o.authority_doc_paths) || [];
+  const videoPath = pathOf(p.video_url, "property-videos");
   const r = await sb.rpc("admin_delete_property", { p_id: id });
   if (r.error) return say(r.error.message);
-  try { if (photoPaths.length) await sb.storage.from("property-photos").remove(photoPaths); if (docPaths.length) await sb.storage.from("owner-docs").remove(docPaths); } catch (_) { /* listing is already deleted; leftover files are harmless */ }
+  try { if (photoPaths.length) await sb.storage.from("property-photos").remove(photoPaths); if (docPaths.length) await sb.storage.from("owner-docs").remove(docPaths); if (videoPath) await sb.storage.from("property-videos").remove([videoPath]); } catch (_) { /* listing is already deleted; leftover files are harmless */ }
   say("Listing deleted permanently.", true); props();
 }
 async function inbox() {
