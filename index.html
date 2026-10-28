@@ -47,7 +47,7 @@
   </div>
 
   <form class="finder" id="finder" role="search" aria-label="Search homes" onsubmit="return false">
-   <div class="f"><label for="propAreaFilter">Area or neighbourhood</label><input id="propAreaFilter" type="search" placeholder="For example Yaba or Ajilosun" autocomplete="off"></div>
+   <div class="f"><label for="propAreaFilter">Area, landmark or zip code</label><input id="propAreaFilter" type="search" placeholder="Area, landmark or zip, e.g. Ajilosun or 360001" autocomplete="off"></div>
    <div class="f"><label for="propStateFilter">State</label><select id="propStateFilter"><option value="">All states</option></select></div>
    <div class="f"><label for="propTypeFilter">Property type</label><select id="propTypeFilter"><option value="">Any type</option><option>Self-contained</option><option>Room / studio</option><option>Flat / apartment</option><option>Duplex</option><option>House</option></select></div>
    <div class="f"><label for="propBudgetFilter">Highest yearly rent</label><select id="propBudgetFilter"><option value="">Any budget</option><option value="200000">₦200,000</option><option value="500000">₦500,000</option><option value="1000000">₦1 million</option><option value="2000000">₦2 million</option><option value="5000000">₦5 million</option></select></div>
@@ -243,6 +243,7 @@ function propertyImage(p){ return (p.photos&&p.photos[0])||PLACEHOLDER; }
 function badgeHTML(p){
  return p._verified ? `<span class="badge">${ic("shield")}Checked by Prime Estate &amp; Properties</span>` : `<span class="badge no">${ic("open")}Not yet verified</span>`;
 }
+function nearHTML(p){const lm=normalise(p.Landmark),z=normalise(p.Zipcode);return (lm||z)?`<p class="hc-near" style="margin:2px 0 0;font-size:13px;opacity:.8">${lm?"Near "+escapeHTML(lm):""}${lm&&z?" · ":""}${z?"Zip "+escapeHTML(z):""}</p>`:"";}
 function propertyCard(p,index){
  const name=normalise(p["Property Name"])||"Rental property";
  const state=normalise(p.State), area=normalise(p["Area / Neighbourhood"]);
@@ -265,7 +266,7 @@ function propertyCard(p,index){
   <div class="hc-body">
    <div class="hc-price"><strong>${escapeHTML(money(p["Rent Per Year (₦)"]))}</strong><span>a year</span></div>
    <h3 class="hc-title">${escapeHTML(name)}</h3>
-   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>
+   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>${nearHTML(p)}
    <ul class="hc-facts">${type?`<li>${ic("home")}${escapeHTML(type)}</li>`:""}${beds?`<li>${ic("bed")}${escapeHTML(beds)} bed${beds==="1"?"":"s"}</li>`:""}${baths?`<li>${ic("bath")}${escapeHTML(baths)} bath${baths==="1"?"":"s"}</li>`:""}</ul>
    ${total!==null?`<p class="hc-total"><span>Total to move in</span><strong>${escapeHTML(money(total))}</strong></p>`:`<p class="hc-total ask">Ask the agent for the full move-in cost in writing.</p>`}
    <p class="hc-agent">${ic("user")}Listed by ${escapeHTML(agentName)}</p>
@@ -297,7 +298,7 @@ function landCard(p,index){
   <div class="hc-body">
    <div class="hc-price"><strong>${escapeHTML(money(p["Sale Price (₦)"]))}</strong><span>for sale</span></div>
    <h3 class="hc-title">${escapeHTML(name)}</h3>
-   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>
+   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>${nearHTML(p)}
    <ul class="hc-facts">${landFacts(p)}</ul>
    <p class="hc-total ask">See the land documents and visit the site before you pay.</p>
    <p class="hc-agent">${ic("user")}Listed by ${escapeHTML(agentName)}</p>
@@ -312,7 +313,7 @@ function renderLandList(){
  const filtering=!!(state||area);
  let filtered=allLands.slice();
  if(state)filtered=filtered.filter(p=>normalise(p.State).toLowerCase()===state);
- if(area)filtered=filtered.filter(p=>`${normalise(p["Area / Neighbourhood"])} ${normalise(p.State)} ${normalise(p["Property Name"])}`.toLowerCase().includes(area));
+ if(area)filtered=filtered.filter(p=>`${normalise(p["Area / Neighbourhood"])} ${normalise(p.State)} ${normalise(p["Property Name"])} ${normalise(p.Landmark)} ${normalise(p.Zipcode)}`.toLowerCase().includes(area));
  const price=p=>moneyNumber(p["Sale Price (₦)"]);
  const sort=document.getElementById("sortLands").value;
  if(sort==="price-low")filtered.sort((a,b)=>(price(a)??Infinity)-(price(b)??Infinity));
@@ -341,7 +342,7 @@ function renderPropertyList(){
  const filtering=!!(state||area||type||budget!==null||bedrooms);
  let filtered=allProperties.slice();
  if(state)filtered=filtered.filter(p=>normalise(p.State).toLowerCase()===state);
- if(area)filtered=filtered.filter(p=>`${normalise(p["Area / Neighbourhood"])} ${normalise(p.State)} ${normalise(p["Property Name"])}`.toLowerCase().includes(area));
+ if(area)filtered=filtered.filter(p=>`${normalise(p["Area / Neighbourhood"])} ${normalise(p.State)} ${normalise(p["Property Name"])} ${normalise(p.Landmark)} ${normalise(p.Zipcode)}`.toLowerCase().includes(area));
  if(type)filtered=filtered.filter(p=>normalise(p["Property Type"]).toLowerCase()===type);
  if(budget!==null)filtered=filtered.filter(p=>{const r=propertyRent(p);return r!==null&&r<=budget;});
  if(bedrooms)filtered=filtered.filter(p=>(Number(p.Bedrooms)||0)>=bedrooms);
@@ -373,7 +374,7 @@ async function loadProperties(){
    Bedrooms:r.bedrooms??"",Bathrooms:r.bathrooms??"","Rent Per Year (₦)":r.rent_per_year,"Agency Fee (₦)":r.agency_fee,"Legal Fee (₦)":r.legal_fee,"Caution Fee (₦)":r.caution_fee,
    "Short Description":r.description,"Agent Name":r.agent_name,"Agent Phone (WhatsApp)":r.agent_whatsapp||r.agent_phone,
    photos:r.photo_urls||[],_verified:(r.verified_labels||[]).length>=4,_labels:r.verified_labels||[],
-   Kind:r.listing_kind||"house","Sale Price (₦)":r.sale_price,"Land Size (sqm)":r.land_size_sqm,"Land Title":r.land_title
+   Landmark:r.landmark||"",Zipcode:r.zipcode||"",Kind:r.listing_kind||"house","Sale Price (₦)":r.sale_price,"Land Size (sqm)":r.land_size_sqm,"Land Title":r.land_title
   }));
   allProperties=mapped.filter(p=>p.Kind!=="land");allLands=mapped.filter(p=>p.Kind==="land");
   populateStateOptions();renderPropertyList();renderLandList();
@@ -421,7 +422,7 @@ function openDetails(index,list=visibleProperties){
    <button class="modal-close" type="button" data-close-modal aria-label="Close details">${ic("x")}</button>
    <p class="pd-price">${isLand?`${escapeHTML(money(p["Sale Price (₦)"]))} <small>for sale</small>`:`${escapeHTML(money(p["Rent Per Year (₦)"]))} <small>a year</small>`}</p>
    <h2 id="propertyDetailTitle">${escapeHTML(name)}</h2>
-   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>
+   <p class="hc-loc">${ic("pin")}${escapeHTML(loc)}</p>${nearHTML(p)}
    <ul class="hc-facts">${isLand?landFacts(p):""}${isLand?"":type?`<li>${ic("home")}${escapeHTML(type)}</li>`:""}${isLand?"":beds?`<li>${ic("bed")}${escapeHTML(beds)} bed${beds==="1"?"":"s"}</li>`:""}${baths?`<li>${ic("bath")}${escapeHTML(baths)} bath${baths==="1"?"":"s"}</li>`:""}</ul>
    <p class="pd-desc">${escapeHTML(normalise(p["Short Description"])||"Ask the agent for the full details, and confirm everything when you inspect.")}</p>
    <div class="pd-sec"><h3>What our team checked</h3><ul class="pd-checks">${checks}</ul></div>
