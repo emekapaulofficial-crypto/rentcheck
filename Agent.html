@@ -86,6 +86,13 @@
    <div class="ph-grid" id="ph_grid"></div>
   </div>
 
+  <div class="card"><h3>Video (optional)</h3>
+   <p class="hint">A short walk-through video helps renters a lot. Upload one video (MP4, MOV or WebM, up to 50MB) or paste a YouTube link instead.</p>
+   <label for="f_vid">Upload a video</label><input id="f_vid" type="file" accept="video/mp4,video/webm,video/quicktime">
+   <label for="f_vlink">Or paste a video link (YouTube)</label><input id="f_vlink" inputmode="url" placeholder="https://youtu.be/...">
+   <p id="f_vhave" class="hint"></p><button type="button" class="alt bad" id="f_vrm" hidden>Remove saved video</button>
+  </div>
+
   <div class="card"><h3>Owner / landlord details</h3>
    <div class="private"><strong>Private.</strong> Only you and Prime Estate &amp; Properties staff can see this. It is never shown on the website.</div>
    <label for="o_rel">Who is giving you this property?</label>
@@ -112,7 +119,7 @@
 <div id="rc-footer"></div>
 <script src="rc-common.js"></script>
 <script>
-let user = null, profile = null, editing = null, photos = [], ownerDocsHave = [];
+let user = null, profile = null, editing = null, photos = [], ownerDocsHave = [], videoUrl = "";
 const MAX_PH = 30, MIN_PH = 3;
 const LABEL = { submitted: "Submitted, waiting for review", under_review: "Under review", needs_information: "More information needed", approved: "Approved", rejected: "Not approved", suspended: "Suspended" };
 const PSTAT = { draft: "Draft", pending_review: "Waiting for review", needs_changes: "Changes needed", approved: "Live", rejected: "Rejected", hidden: "Hidden", rented: "Rented" };
@@ -297,6 +304,10 @@ async function saveProperty(status) {
   if (land && (!(num("f_lprice") > 0) || !(num("f_lsize") > 0))) return say("For land, add the selling price and the size in square metres.");
   if (!land && !(num("f_rent") > 0)) return say("Add the yearly rent.");
   if ($("o_docs").files.length > 5) return say("Please attach at most 5 owner documents.");
+  const vf = $("f_vid").files[0], vl = $("f_vlink").value.trim();
+  if (vf && vf.size > 52428800) return say("The video is over 50MB. Paste a YouTube link instead, or trim the video.");
+  if (vf && !/^video\/(mp4|webm|quicktime)$/.test(vf.type)) return say("Video must be MP4, MOV or WebM.");
+  if (!vf && vl && !/^https?:\/\//i.test(vl)) return say("The video link must start with https://");
   if (submit) {
     if (photos.length < MIN_PH) return say(`Add at least ${MIN_PH} photos of the real property.`);
     if (!$("o_rel").value || $("o_name").value.trim().length < 2 || $("o_phone").value.trim().length < 7) return say("Fill in who is giving you the property, and the owner's name and phone number.");
@@ -306,9 +317,17 @@ async function saveProperty(status) {
     const urls = await uploadPhotos();
     progress(0, 0, "Saving…");
     const newDocs = await uploadOwnerDocs();
+    let video = videoUrl || null;
+    if (vf) {
+      progress(0, 0, "Uploading video, please wait…");
+      const vp = `${user.id}/${Date.now()}-${safeName(vf.name)}`;
+      const vu = await sb.storage.from("property-videos").upload(vp, vf, { contentType: vf.type });
+      if (vu.error) throw new Error("Video upload failed: " + vu.error.message);
+      video = sb.storage.from("property-videos").getPublicUrl(vp).data.publicUrl;
+    } else if (vl) video = vl;
     const row = land
-      ? { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), landmark: $("f_lm").value.trim() || null, zipcode: $("f_zip").value.trim() || null, property_type: $("f_ltype").value, bedrooms: null, bathrooms: null, rent_per_year: null, agency_fee: 0, caution_fee: 0, legal_fee: 0, listing_kind: "land", sale_price: num("f_lprice"), land_size_sqm: num("f_lsize"), land_title: $("f_ltitle").value, description: $("f_desc").value.trim(), photo_urls: urls, status }
-      : { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), landmark: $("f_lm").value.trim() || null, zipcode: $("f_zip").value.trim() || null, property_type: $("f_type").value, bedrooms: num("f_bed"), bathrooms: num("f_bath"), rent_per_year: num("f_rent"), agency_fee: num("f_ag") ?? 0, caution_fee: num("f_ca") ?? 0, legal_fee: num("f_le") ?? 0, listing_kind: "house", sale_price: null, land_size_sqm: null, land_title: null, description: $("f_desc").value.trim(), photo_urls: urls, status };
+      ? { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), landmark: $("f_lm").value.trim() || null, zipcode: $("f_zip").value.trim() || null, property_type: $("f_ltype").value, bedrooms: null, bathrooms: null, rent_per_year: null, agency_fee: 0, caution_fee: 0, legal_fee: 0, listing_kind: "land", sale_price: num("f_lprice"), land_size_sqm: num("f_lsize"), land_title: $("f_ltitle").value, description: $("f_desc").value.trim(), photo_urls: urls, video_url: video, status }
+      : { title: $("f_t").value.trim(), state: $("f_state").value, area: $("f_area").value.trim(), landmark: $("f_lm").value.trim() || null, zipcode: $("f_zip").value.trim() || null, property_type: $("f_type").value, bedrooms: num("f_bed"), bathrooms: num("f_bath"), rent_per_year: num("f_rent"), agency_fee: num("f_ag") ?? 0, caution_fee: num("f_ca") ?? 0, legal_fee: num("f_le") ?? 0, listing_kind: "house", sale_price: null, land_size_sqm: null, land_title: null, description: $("f_desc").value.trim(), photo_urls: urls, video_url: video, status };
     let id = editing;
     if (editing) { const r = await sb.from("properties").update(row).eq("id", editing); if (r.error) throw r.error; }
     else { const r = await sb.from("properties").insert({ ...row, agent_id: user.id }).select("id").single(); if (r.error) throw r.error; id = r.data.id; }
@@ -323,10 +342,15 @@ async function saveProperty(status) {
 }
 $("b_submit").onclick = () => saveProperty("pending_review");
 $("b_draft").onclick = () => saveProperty("draft");
+function vidNote() {
+  $("f_vhave").textContent = videoUrl ? "A video is already saved for this listing. Choose a new one above to replace it." : "";
+  $("f_vrm").hidden = !videoUrl;
+}
+$("f_vrm").onclick = () => { videoUrl = ""; $("f_vlink").value = ""; vidNote(); };
 function kindUI() { const land = $("f_kind").value === "land"; $("house_fields").hidden = land; $("land_fields").hidden = !land; }
 $("f_kind").onchange = kindUI;
 function resetForm() {
-  editing = null; photos = []; ownerDocsHave = [];
+  editing = null; photos = []; ownerDocsHave = []; videoUrl = ""; $("f_vid").value = ""; vidNote();
   document.querySelectorAll("#p_add input:not([type=file]), #p_add textarea").forEach(e => e.value = "");
   $("o_rel").value = ""; $("o_docs").value = ""; $("o_docs_have").textContent = "";
   $("f_kind").value = "house"; $("f_ltype").selectedIndex = 0; $("f_ltitle").selectedIndex = 0; kindUI();
@@ -345,7 +369,7 @@ async function loadProps() {
 }
 async function editProp(id) {
   const p = window._props.find(x => x.id === id); resetForm(); editing = id;
-  $("f_t").value = p.title; $("f_state").value = p.state; $("f_area").value = p.area; $("f_lm").value = p.landmark || ""; $("f_zip").value = p.zipcode || ""; $("f_type").value = p.property_type; $("f_bed").value = p.bedrooms ?? ""; $("f_bath").value = p.bathrooms ?? ""; $("f_rent").value = p.rent_per_year; $("f_ag").value = p.agency_fee ?? ""; $("f_ca").value = p.caution_fee ?? ""; $("f_le").value = p.legal_fee ?? ""; $("f_desc").value = p.description || "";
+  $("f_t").value = p.title; $("f_state").value = p.state; $("f_area").value = p.area; $("f_lm").value = p.landmark || ""; $("f_zip").value = p.zipcode || ""; $("f_type").value = p.property_type; $("f_bed").value = p.bedrooms ?? ""; $("f_bath").value = p.bathrooms ?? ""; $("f_rent").value = p.rent_per_year; $("f_ag").value = p.agency_fee ?? ""; $("f_ca").value = p.caution_fee ?? ""; $("f_le").value = p.legal_fee ?? ""; $("f_desc").value = p.description || ""; videoUrl = p.video_url || ""; if (/^https?:\/\/(www\.)?(youtu|m\.youtu)/i.test(videoUrl)) $("f_vlink").value = videoUrl; vidNote();
   $("f_kind").value = p.listing_kind || "house";
   if (p.listing_kind === "land") { $("f_ltype").value = p.property_type; $("f_lsize").value = p.land_size_sqm ?? ""; $("f_lprice").value = p.sale_price ?? ""; $("f_ltitle").value = p.land_title || $("f_ltitle").options[0].value; }
   kindUI();
