@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Make a payment | Prime Estate &amp; Properties</title>
+<link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="portal.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>window.RC_NO_STYLE = true;</script>
+<link rel="stylesheet" href="theme.css"><script src="site-config.js"></script><script src="rc-theme.js"></script></head><body>
+<div id="rc-header"></div>
+<div id="msg" role="status"></div>
+<main class="portal">
+<section class="view card" id="bank"><h3>Pay by bank transfer</h3><div id="bankbox"></div>
+ <p class="hint">Only pay into the account shown on this page. We never ask you to pay to a personal account or send money by chat. Keep your transfer receipt.</p></section>
+<section class="view card" id="form"><h3>1. Get your payment reference</h3>
+ <label for="p_kind">What are you paying for?</label>
+ <select id="p_kind"><option value="inspection_fee">Property inspection / checking fee</option><option value="agent_subscription">Agent subscription</option><option value="featured_listing">Featured listing</option><option value="other">Other (agreed with us)</option></select>
+ <label for="p_name">Full name</label><input id="p_name" autocomplete="name">
+ <div class="row"><div><label for="p_phone">Phone number</label><input id="p_phone" type="tel" autocomplete="tel" inputmode="tel"></div><div><label for="p_email">Email (optional)</label><input id="p_email" type="email" autocomplete="email"></div></div>
+ <div class="row"><div><label for="p_amt">Amount (₦)</label><input id="p_amt" type="number" min="100" inputmode="numeric"></div><div><label for="p_agent">Agent ID (if any)</label><input id="p_agent" placeholder="RCNG-XXXXXX"></div></div>
+ <label for="p_note">What is it for? (optional)</label><input id="p_note" placeholder="e.g. 2-bedroom flat, Ado-Ekiti">
+ <button id="b_go">Get payment reference</button></section>
+<section class="view card" id="done"><h3>2. Transfer and tell us</h3><div id="donebox"></div></section>
+</main>
+<script src="rc-common.js"></script>
+<script>
+const B = (window.SITE && window.SITE.bank) || {}, O = (window.SITE && window.SITE.office) || {};
+const bankReady = !!(B.accountNumber && B.bankName && B.accountName);
+let REF = "", PHONE = "";
+function bankHtml() {
+  return bankReady
+    ? `<p><strong>Bank:</strong> ${esc(B.bankName)}<br><strong>Account name:</strong> ${esc(B.accountName)}<br><strong>Account number:</strong> <span id="acct">${esc(B.accountNumber)}</span> <button class="alt" type="button" id="cp">Copy</button></p>`
+    : "<p><strong>Our bank account details will be added here soon.</strong> Please do not pay anyone until they appear on this page.</p>";
+}
+function init() {
+  $("bankbox").innerHTML = bankHtml();
+  document.querySelectorAll(".view").forEach(v => v.hidden = false); $("done").hidden = true;
+  if (!configured()) { say("The website is not connected to its database yet."); $("b_go").disabled = true; }
+  if (!bankReady) $("b_go").disabled = true;
+  const cp = $("cp"); if (cp) cp.onclick = () => navigator.clipboard && navigator.clipboard.writeText(B.accountNumber).then(() => say("Account number copied.", true));
+}
+$("b_go").onclick = async () => {
+  const amt = Number($("p_amt").value);
+  if (!bankReady) return say("Bank details are not available yet.");
+  if ($("p_name").value.trim().length < 3) return say("Enter your full name.");
+  if (!/^\d{10,14}$/.test($("p_phone").value.replace(/\D/g, ""))) return say("Enter a valid phone number.");
+  if (!(amt >= 100)) return say("Enter the amount you are paying.");
+  $("b_go").disabled = true;
+  const { data, error } = await sb.rpc("create_payment_request", { p_kind: $("p_kind").value, p_name: $("p_name").value.trim(), p_phone: $("p_phone").value.trim(), p_email: $("p_email").value.trim(), p_amount: amt, p_agent_code: $("p_agent").value.trim(), p_note: $("p_note").value.trim() });
+  $("b_go").disabled = false;
+  if (error) return say(error.message);
+  REF = data; PHONE = $("p_phone").value.trim(); say("");
+  const wa = String(O.whatsapp || "").replace(/\D/g, "");
+  const waLink = wa ? "https://wa.me/" + wa + "?text=" + encodeURIComponent(`Hello, I have paid ${naira(amt)}. Reference ${REF}. Name: ${$("p_name").value.trim()}.`) : "";
+  $("form").hidden = true; $("done").hidden = false;
+  $("donebox").innerHTML = `<p>Your reference: <strong style="font-size:1.4em">${esc(REF)}</strong></p>
+   <ol><li>Transfer exactly <strong>${esc(naira(amt))}</strong> to the account above.</li><li>Put <strong>${esc(REF)}</strong> in the transfer narration/remark.</li><li>Tap the button below after you have paid.</li></ol>
+   <button id="b_paid">I have paid</button>${waLink ? ` <a class="btn" href="${esc(waLink)}" target="_blank" rel="noopener">Send receipt on WhatsApp</a>` : ""}
+   <p class="hint">We confirm your payment against our bank statement, usually within one working day. Keep this reference.</p>`;
+  $("b_paid").onclick = async () => { const r = await sb.rpc("mark_payment_claimed", { p_reference: REF, p_phone: PHONE }); r.error ? say(r.error.message) : (say("Thank you. We will confirm your payment shortly.", true), $("b_paid").disabled = true); };
+};
+init();
+</script>
+<div id="rc-footer"></div><script src="rc-nav.js"></script></body></html>
