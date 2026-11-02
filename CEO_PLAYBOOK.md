@@ -1,4 +1,4 @@
-# RentCheck NG — CEO Operating Playbook
+# Calvora Estate & Properties — CEO Operating Playbook
 Version 1.0 | Internal working document | Nigeria
 
 ## Mission
