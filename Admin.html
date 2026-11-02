@@ -25,7 +25,7 @@
 const LABELS = { agent_identity_checked: "Agent identity checked", property_viewed: "Property viewed", owner_authority_checked: "Owner/authority checked", details_recently_confirmed: "Details recently confirmed" };
 let ROLE = null, IS_OWNER = false;
 const TABS = {
-  admin:   [["props", "Listings"], ["apps", "Applications"], ["inbox", "Messages"], ["team", "Team"], ["audit", "Audit log"]],
+  admin:   [["props", "Listings"], ["escrow", "Escrow"], ["apps", "Applications"], ["inbox", "Messages"], ["team", "Team"], ["audit", "Audit log"]],
   manager: [["props", "Listings"]]
 };
 async function init() {
@@ -48,7 +48,7 @@ async function enter() {
 function tab(t) {
   if (!TABS[ROLE] || !TABS[ROLE].some(x => x[0] === t)) return;
   $("tabs").querySelectorAll("[data-t]").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t ? "true" : "false"));
-  ({ apps, props, inbox, team, audit })[t]();
+  ({ apps, props, escrow, inbox, team, audit })[t]();
 }
 const run = (q) => q.then(r => { if (r.error) say(r.error.message); return r; });
 
@@ -199,6 +199,36 @@ async function delListing(id) {
   if (r.error) return say(r.error.message);
   try { if (photoPaths.length) await sb.storage.from("property-photos").remove(photoPaths); if (docPaths.length) await sb.storage.from("owner-docs").remove(docPaths); if (videoPath) await sb.storage.from("property-videos").remove([videoPath]); } catch (_) { /* listing is already deleted; leftover files are harmless */ }
   say("Listing deleted permanently.", true); props();
+}
+const ESC_LABEL = { awaiting_payment: ["Waiting for transfer", ""], payer_claimed: ["Payer says paid: check bank", "warn"], held: ["Money held", "good"], released: ["Released", "good"], refunded: ["Refunded", ""], disputed: ["Disputed", "bad"], cancelled: ["Cancelled", ""] };
+const ESC_PURPOSE = { rent: "Rent", deposit: "Caution / deposit", purchase: "Purchase" };
+async function escrow() {
+  const { data } = await run(sb.from("escrow_payments").select("*").order("created_at", { ascending: false }).limit(100));
+  const rows = data || [], n = st => rows.filter(r => r.status === st).length;
+  const held = rows.filter(r => r.status === "held" || r.status === "disputed").reduce((t, r) => t + Number(r.amount), 0);
+  $("content").innerHTML = `<div class="card"><h3>Escrow: money we are holding</h3>
+    <div class="stats"><div class="stat"><b>${esc(naira(held))}</b>Held now</div><div class="stat"><b>${n("payer_claimed")}</b>To check</div><div class="stat"><b>${n("held")}</b>Ready to release</div><div class="stat"><b>${n("released")}</b>Released</div></div>
+    <ol class="esc-steps"><li>The payer transfers to our account and taps "I have paid".</li><li>Find the money on the bank statement (exact amount and the reference), then press <strong>Money received</strong>.</li><li>When the payer has got the house, pay the agent or owner, type the payout reference, and press <strong>Release</strong>.</li><li>If the house was not given, press <strong>Refund</strong> after you send the money back.</li></ol>
+    <p class="hint">This page records what you did. It does not move money itself.</p></div>` +
+    (rows.map(r => {
+      const l = ESC_LABEL[r.status] || [r.status, ""], open = r.status === "awaiting_payment" || r.status === "payer_claimed", hold = r.status === "held" || r.status === "disputed";
+      const digits = String(r.payer_phone || "").replace(/\D/g, ""), wa = digits.length >= 10 ? "https://wa.me/" + (digits.startsWith("0") ? "234" + digits.slice(1) : digits) : "";
+      return `<div class="card"><strong>${esc(r.reference)}</strong> <span class="pill ${l[1]}">${esc(l[0])}</span>
+       <p><strong>${esc(naira(r.amount))}</strong> · ${esc(ESC_PURPOSE[r.purpose] || r.purpose)}${r.property_title ? " · " + esc(r.property_title) : ""}<br><small>${esc(r.payer_name)} · ${esc(r.payer_phone)}${r.payer_email ? " · " + esc(r.payer_email) : ""} · ${esc(new Date(r.created_at).toLocaleString())}</small></p>
+       ${r.note ? `<p><small>Note: ${esc(r.note)}</small></p>` : ""}${r.admin_note ? `<p><small>Our note: ${esc(r.admin_note)}</small></p>` : ""}
+       ${open || hold ? `<label for="en_${r.id}">Payout reference or note${hold ? " (required to release)" : ""}</label><input id="en_${r.id}" placeholder="e.g. transfer to agent, ref 123456">` : ""}
+       ${open ? `<button onclick="escAct('${r.id}','confirm_received')">Money received</button><button class="bad" onclick="escAct('${r.id}','cancel')">Cancel</button>` : ""}
+       ${hold ? `<button onclick="escAct('${r.id}','release')">Release to agent / owner</button><button class="alt" onclick="escAct('${r.id}','refund')">Refund payer</button>${r.status === "held" ? `<button class="bad" onclick="escAct('${r.id}','dispute')">Mark disputed</button>` : ""}` : ""}
+       ${wa ? ` <a class="btn alt" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp payer</a>` : ""}</div>`;
+    }).join("") || "<div class='card'>No escrow payments yet.</div>");
+}
+async function escAct(id, action) {
+  const note = (($("en_" + id) || {}).value || "").trim();
+  if (action === "release" && note.length < 3) return say("Type the payout reference or a short note before you release.");
+  const ask = { confirm_received: "Confirm that this money is in our bank account?", release: "Release this money to the agent or owner? Only do this after the payer has got the house.", refund: "Mark this as refunded to the payer?", dispute: "Mark this payment as disputed?", cancel: "Cancel this payment request?" };
+  if (!confirm(ask[action])) return;
+  const r = await sb.rpc("escrow_admin_action", { p_id: id, p_action: action, p_note: note });
+  r.error ? say(r.error.message) : (say("Saved.", true), escrow());
 }
 async function inbox() {
   const { data } = await run(sb.from("property_inquiries").select("*, properties:property_id(title)").order("created_at", { ascending: false }).limit(100));
