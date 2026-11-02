@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agent portal | Prime Estate &amp; Properties — Buy or Rent</title>
+<title>Agent portal | Calvora Estate &amp; Properties — Buy or Rent</title>
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="site-pages.css"><link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -14,7 +14,7 @@
 
 <section class="view card" id="auth" hidden>
  <h2>Agent portal</h2>
- <p class="hint">Only agents approved by Prime Estate &amp; Properties can publish listings.</p>
+ <p class="hint">Only agents approved by Calvora Estate &amp; Properties can publish listings.</p>
  <div class="seg" role="tablist"><button type="button" id="t_in" class="on">Sign in</button><button type="button" id="t_up">Create account</button></div>
  <form id="authForm">
   <div id="nameWrap" hidden><label for="a_name">Full name</label><input id="a_name" autocomplete="name"></div>
@@ -38,7 +38,7 @@
  <div class="row"><div><label for="p_state">State you work in</label><select id="p_state"></select></div><div><label for="p_areas">Areas / neighbourhoods</label><input id="p_areas" placeholder="e.g. Ado-Ekiti: Ajilosun, Okesha"></div></div>
  <label for="p_exp">Experience</label><textarea id="p_exp" rows="3"></textarea>
  <label for="p_ref">References (name and phone, optional)</label><textarea id="p_ref" rows="2"></textarea>
- <label for="p_doc">ID document (photo or PDF, max 5MB). Stored privately. Only Prime Estate &amp; Properties staff can open it.</label><input id="p_doc" type="file" accept="image/jpeg,image/png,application/pdf">
+ <label for="p_doc">ID document (photo or PDF, max 5MB). Stored privately. Only Calvora Estate &amp; Properties staff can open it.</label><input id="p_doc" type="file" accept="image/jpeg,image/png,application/pdf">
  <label class="inline"><input id="p_agree" type="checkbox"> I agree to the agent rules: no fake or duplicate listings, no unapproved fees, no unverified claims, and no asking renters to pay personal accounts.</label>
  <button type="button" id="b_apply">Submit application</button>
 </section>
@@ -46,7 +46,7 @@
 <section class="view card" id="status" hidden><h2>Application status</h2><p id="st_text"></p><p class="hint">We will review your application. Check back here or sign in again later.</p></section>
 
 <section class="view" id="dash" hidden>
- <div class="card"><h2 id="d_hi"></h2><p class="hint">Listings go live only after Prime Estate &amp; Properties staff check and approve them.</p></div>
+ <div class="card"><h2 id="d_hi"></h2><p class="hint">Listings go live only after Calvora Estate &amp; Properties staff check and approve them.</p></div>
  <div class="tabs" role="tablist">
   <button type="button" data-pane="p_over" aria-selected="true">Overview</button>
   <button type="button" data-pane="p_add" aria-selected="false">Add property</button>
@@ -94,7 +94,7 @@
   </div>
 
   <div class="card"><h3>Owner / landlord details</h3>
-   <div class="private"><strong>Private.</strong> Only you and Prime Estate &amp; Properties staff can see this. It is never shown on the website.</div>
+   <div class="private"><strong>Private.</strong> Only you and Calvora Estate &amp; Properties staff can see this. It is never shown on the website.</div>
    <label for="o_rel">Who is giving you this property?</label>
    <select id="o_rel"><option value="">Choose one</option><option value="owner">The owner</option><option value="family_with_authority">Owner's family member with authority</option><option value="caretaker">Caretaker</option><option value="company_or_other_agent">A company or another agent</option></select>
    <div class="row"><div><label for="o_name">Owner's full name</label><input id="o_name" autocomplete="off"></div><div><label for="o_phone">Owner's phone number</label><input id="o_phone" inputmode="tel" autocomplete="off"></div></div>
