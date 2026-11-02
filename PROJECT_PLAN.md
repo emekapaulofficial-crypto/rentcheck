@@ -1,4 +1,4 @@
-# RentCheck NG — Project plan and implementation status
+# Calvora Estate & Properties — Project plan and implementation status
 
 ## Product goal
 Build a Nigerian property-rental marketplace where renters can discover properties, understand known costs, contact responsible agents, arrange inspections, and report concerns. The company recruits and manages local agents and oversees listing quality and operations.
