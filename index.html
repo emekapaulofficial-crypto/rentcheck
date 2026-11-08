@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CALVORA Property Solutions — Buy or Rent | Check the home before you pay the rent</title>
-<meta name="description" content="Find rental homes in Nigeria with the agent, the checks and the full move-in cost shown up front. Every listing is reviewed by the Calvora Estate &amp; Properties team before it goes live.">
-<meta name="theme-color" content="#0A4D3A">
+<meta name="description" content="Find rental homes in Nigeria with the agent, the checks and the full move-in cost shown up front. Every listing is reviewed by the CALVORA Property Solutions team before it goes live.">
+<meta name="theme-color" content="#10233F">
 <link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="site-pages.css">
 <link rel="stylesheet" href="home.css">
@@ -25,7 +25,7 @@
   </div>
 
   <div class="specimen-wrap">
-   <aside class="specimen" aria-label="Example of a Calvora Estate &amp; Properties check report">
+   <aside class="specimen" aria-label="Example of a CALVORA &amp; Properties check report">
     <span class="sp-stamp" aria-hidden="true">Checked</span>
     <span class="sp-tag">Example check report</span>
     <h2>2 bedroom flat in Ajilosun</h2>
@@ -291,7 +291,7 @@ function landCard(p,index){
  const loc=[area,state].filter(Boolean).join(", ")||"Location to be confirmed";
  const agentName=normalise(p["Agent Name"])||"Property contact";
  const agentPhone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
- const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on Calvora Estate & Properties and would like to confirm it is still available, see the land documents and arrange a site inspection.`,agentPhone);
+ const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on CALVORA Property Solutions and would like to confirm it is still available, see the land documents and arrange a site inspection.`,agentPhone);
  const key=normalise(p["Property ID"])||`${name}|${state}|${area}|${normalise(p["Sale Price (₦)"])}`;
  const saved=getSavedProperties().includes(key);
  const photos=(p.photos||[]).length;
