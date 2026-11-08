@@ -1,9 +1,9 @@
-/* CALVORA shared light/dark theme tokens. */
-:root{color-scheme:light;--page:#fff;--surface:#fff;--text:#172235;--muted:#647184;--border:#e1e6ec}
-:root[data-theme="dark"]{color-scheme:dark;--page:#0c1422;--surface:#142137;--text:#edf2f8;--muted:#b2bfd0;--border:#2a3b54}
+/* CALVORA logo palette: navy #002850, bright green #78D048, deep green #007010. */
+:root{color-scheme:light;--brand-navy:#002850;--brand-green:#78D048;--brand-green-deep:#007010;--page:#fff;--surface:#fff;--text:#002850;--muted:#31516b;--border:#c8d8e4}
+:root[data-theme="dark"]{color-scheme:dark;--page:#001b36;--surface:#002850;--text:#fff;--muted:#c4d8e8;--border:#31516b}
 :root[data-theme="dark"] body{background:var(--page);color:var(--text)}
 :root[data-theme="dark"] .panel,:root[data-theme="dark"] .finder,:root[data-theme="dark"] .home-card,:root[data-theme="dark"] .specimen,:root[data-theme="dark"] .rcn-head{background:var(--surface);color:var(--text);border-color:var(--border)}
-:root[data-theme="dark"] .hero,:root[data-theme="dark"] .home-hero,:root[data-theme="dark"] .checks,:root[data-theme="dark"] .process{background:#101c30;color:var(--text)}
+:root[data-theme="dark"] .hero,:root[data-theme="dark"] .home-hero,:root[data-theme="dark"] .checks,:root[data-theme="dark"] .process{background:#00213f;color:var(--text)}
 :root[data-theme="dark"] p,:root[data-theme="dark"] .lead,:root[data-theme="dark"] .muted,:root[data-theme="dark"] .result-count{color:var(--muted)}
-:root[data-theme="dark"] input,:root[data-theme="dark"] select,:root[data-theme="dark"] textarea{background:#0c1422;color:var(--text);border-color:var(--border)}
+:root[data-theme="dark"] input,:root[data-theme="dark"] select,:root[data-theme="dark"] textarea{background:#001b36;color:var(--text);border-color:var(--border)}
 :root[data-theme="dark"] .rcn-links{background:var(--surface)}
