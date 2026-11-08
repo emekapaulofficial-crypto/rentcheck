@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Calvora Estate &amp; Properties — Buy or Rent | Check the home before you pay the rent</title>
+<title>CALVORA Property Solutions — Buy or Rent | Check the home before you pay the rent</title>
 <meta name="description" content="Find rental homes in Nigeria with the agent, the checks and the full move-in cost shown up front. Every listing is reviewed by the Calvora Estate &amp; Properties team before it goes live.">
 <meta name="theme-color" content="#0A4D3A">
 <link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -19,9 +19,9 @@
 <section class="home-hero" aria-labelledby="heroTitle">
  <div class="wrap hh">
   <div class="hh-copy">
-   <h1 id="heroTitle">Check the home before you pay the rent.</h1>
-   <p class="lead">Every listing shows who the agent is, which checks our team has recorded, and what you will pay in total.</p>
-   <p class="hh-links">Own a home or work as an agent? <a href="owners.html">See how to list a property</a> · <a href="#lands">Looking for land?</a></p>
+   <h1 id="heroTitle">Find the right property. Move with confidence.</h1>
+   <p class="lead">Explore homes for rent, houses for sale and land opportunities with clearer information and accountable property professionals.</p>
+   <p class="hh-links">Own a property or work as an agent? <a href="owners.html">List with CALVORA</a> · <a href="#lands">Looking for land?</a></p>
   </div>
 
   <div class="specimen-wrap">
@@ -258,7 +258,7 @@ function propertyCard(p,index){
  const loc=[area,state].filter(Boolean).join(", ")||"Location to be confirmed";
  const agentName=normalise(p["Agent Name"])||"Property contact";
  const agentPhone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
- const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on Calvora Estate & Properties and would like to confirm availability, the full move-in cost, and arrange an inspection.`,agentPhone);
+ const waLink=whatsappUrl(`Hello ${agentName}, I found "${name}" on CALVORA Property Solutions and would like to confirm availability, the full move-in cost, and arrange an inspection.`,agentPhone);
  const key=normalise(p["Property ID"])||`${name}|${state}|${area}|${normalise(p["Rent Per Year (₦)"])}`;
  const saved=getSavedProperties().includes(key);
  const total=moveInTotal(p);
