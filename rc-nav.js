@@ -2,33 +2,33 @@
    Pages contain <div id="rc-header"></div> and <div id="rc-footer"></div>. Edit links here, once. */
 (function () {
   var CSS = '' +
-  '.rcn-head{background:#fff;border-bottom:1px solid #e1e7e1;position:sticky;top:0;z-index:50}' +
+  '.rcn-head{background:#fff;border-bottom:1px solid #c8d8e4;position:sticky;top:0;z-index:50}' +
   '.rcn-bar{width:min(1180px,calc(100% - 32px));margin:auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}' +
-  '.rcn-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:1.15rem;color:#10233f;letter-spacing:-.02em}' +
-  '.rcn-brand span{color:#176b4b}' +
-  '.rcn-logo{width:34px;height:34px;border-radius:9px;background:#10233f;display:inline-flex;align-items:center;justify-content:center;flex:none}' +
+  '.rcn-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:1.15rem;color:#002850;letter-spacing:-.02em}' +
+  '.rcn-brand span{color:#007010}' +
+  '.rcn-logo{width:34px;height:34px;border-radius:9px;background:#002850;display:inline-flex;align-items:center;justify-content:center;flex:none}' +
   '.rcn-links{display:flex;align-items:center;gap:26px}' +
-  '.rcn-links a{color:#17251f;text-decoration:none;font-size:.95rem;font-weight:600}' +
-  '.rcn-links a:hover,.rcn-links a.on{color:#176b4b}' +
-  '.rcn-links a.rcn-cta{background:#10233f;color:#fff;padding:12px 20px;border-radius:999px}' +
-  '.rcn-links a.rcn-cta:hover{background:#0b1a30;color:#b8dfc5}' +
-  '.rcn-menu{display:none;background:#fff;border:1px solid #17251f;color:#17251f;border-radius:999px;padding:9px 18px;font:inherit;font-weight:700;cursor:pointer}' +
-  '.rcn-foot{background:#10233f;color:#dce5ee;margin-top:40px}' +
+  '.rcn-links a{color:#002850;text-decoration:none;font-size:.95rem;font-weight:600}' +
+  '.rcn-links a:hover,.rcn-links a.on{color:#007010}' +
+  '.rcn-links a.rcn-cta{background:#002850;color:#fff;padding:12px 20px;border-radius:999px}' +
+  '.rcn-links a.rcn-cta:hover{background:#001b36;color:#78D048}' +
+  '.rcn-menu{display:none;background:#fff;border:1px solid #002850;color:#002850;border-radius:999px;padding:9px 18px;font:inherit;font-weight:700;cursor:pointer}' +
+  '.rcn-foot{background:#002850;color:#e5eef5;margin-top:40px}' +
   '.rcn-foot-in{width:min(1180px,calc(100% - 32px));margin:auto;padding:48px 0 22px;display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:32px}' +
   '.rcn-foot h4{margin:0 0 12px;color:#fff;font-size:.95rem}' +
-  '.rcn-foot a{display:block;color:#dce5ee;text-decoration:none;padding:5px 0;font-size:.95rem}' +
-  '.rcn-foot a:hover{color:#b8dfc5}' +
+  '.rcn-foot a{display:block;color:#e5eef5;text-decoration:none;padding:5px 0;font-size:.95rem}' +
+  '.rcn-foot a:hover{color:#78D048}' +
   '.rcn-foot p{margin:14px 0 0;line-height:1.6;max-width:300px}' +
-  '.rcn-foot .rcn-brand{color:#fff}.rcn-foot .rcn-brand span{color:#b8dfc5}' +
-  '.rcn-legal{width:min(1180px,calc(100% - 32px));margin:auto;padding:16px 0 28px;border-top:1px solid #31445f;font-size:.85rem;color:#9db8ac}' +
+  '.rcn-foot .rcn-brand{color:#fff}.rcn-foot .rcn-brand span{color:#78D048}' +
+  '.rcn-legal{width:min(1180px,calc(100% - 32px));margin:auto;padding:16px 0 28px;border-top:1px solid #31516b;font-size:.85rem;color:#a6e681}' +
   '@media(max-width:860px){.rcn-menu{display:inline-block}' +
-  '.rcn-links{display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border-bottom:1px solid #e1e7e1;flex-direction:column;align-items:stretch;gap:0;padding:8px 16px 16px}' +
-  '.rcn-links.open{display:flex}.rcn-links a{padding:13px 4px;border-bottom:1px solid #eef2ee}' +
+  '.rcn-links{display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border-bottom:1px solid #c8d8e4;flex-direction:column;align-items:stretch;gap:0;padding:8px 16px 16px}' +
+  '.rcn-links.open{display:flex}.rcn-links a{padding:13px 4px;border-bottom:1px solid #edf4f9}' +
   '.rcn-links a.rcn-cta{text-align:center;margin-top:12px;border-bottom:0}' +
   '.rcn-foot-in{grid-template-columns:1fr 1fr}}' +
   '@media(max-width:520px){.rcn-foot-in{grid-template-columns:1fr}}';
 
-  var LOGO = '<span class="rcn-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b8dfc5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 14.5l2.2 2.2L15.5 12"/></svg></span>';
+  var LOGO = '<span class="rcn-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#78D048" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 14.5l2.2 2.2L15.5 12"/></svg></span>';
   var BRAND = '<a class="rcn-brand" href="index.html">' + LOGO + '<b>CALVORA <span>Property Solutions</span></b></a>';
 
   var LINKS = [
