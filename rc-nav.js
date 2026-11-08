@@ -1,4 +1,4 @@
-/* Prime Estate & Properties: shared menu (header) and footer for every page.
+/* CALVORA Property Solutions: shared menu (header) and footer for every page.
    Pages contain <div id="rc-header"></div> and <div id="rc-footer"></div>. Edit links here, once. */
 (function () {
   var CSS = '' +
@@ -29,10 +29,12 @@
   '@media(max-width:520px){.rcn-foot-in{grid-template-columns:1fr}}';
 
   var LOGO = '<span class="rcn-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d9f27a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 14.5l2.2 2.2L15.5 12"/></svg></span>';
-  var BRAND = '<a class="rcn-brand" href="index.html">' + LOGO + '<b>Prime Estate <span>&amp; Properties</span></b></a>';
+  var BRAND = '<a class="rcn-brand" href="index.html">' + LOGO + '<b>CALVORA <span>Property Solutions</span></b></a>';
 
   var LINKS = [
-    ['Find a home', 'index.html#homes'],
+    ['Rent a home', 'index.html#homes'],
+    ['Buy a home', 'index.html#houses-for-sale'],
+    ['Buy land', 'index.html#lands'],
     ['List your property', 'owners.html'],
     ['Become an agent', 'agents.html'],
     ['Trust & safety', 'safety.html'],
@@ -67,10 +69,10 @@
   var f = document.getElementById('rc-footer');
   if (f) {
     f.innerHTML = '<footer class="rcn-foot"><div class="rcn-foot-in">' +
-      '<div>' + BRAND + '<p>Rental homes in Nigeria, checked before you pay.</p></div>' +
-      '<div><h4>Renters</h4><a href="index.html#homes">Find a home</a><a href="how-it-works.html">How it works</a><a href="safety.html">Trust &amp; safety</a><a href="faq.html">FAQs</a><a href="complaints.html">Report a concern</a></div>' +
+      '<div>' + BRAND + '<p>Property. Trust. Opportunity. A clearer way to rent, buy and sell property.</p></div>' +
+      '<div><h4>Renters</h4><a href="index.html#homes">Rent a home</a><a href="how-it-works.html">How it works</a><a href="safety.html">Trust &amp; safety</a><a href="faq.html">FAQs</a><a href="complaints.html">Report a concern</a></div>' +
       '<div><h4>Agents and owners</h4><a href="agents.html">Become an agent</a><a href="agent.html">Agent login</a><a href="owners.html">List your property</a></div>' +
       '<div><h4>Company</h4><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>' +
-      '</div><div class="rcn-legal">&copy; ' + new Date().getFullYear() + ' Prime Estate &amp; Properties. Company registration in progress.</div></footer>';
+      '</div><div class="rcn-legal">&copy; ' + new Date().getFullYear() + ' CALVORA Property Solutions. Company details subject to confirmation.</div></footer>';
   }
 })();
