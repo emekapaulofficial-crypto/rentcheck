@@ -86,7 +86,7 @@
 <section class="checks" id="checks" aria-labelledby="checksTitle">
  <div class="wrap checks-grid">
   <div class="checks-intro">
-   <h2 id="checksTitle">What “Checked” means on Calvora Estate &amp; Properties</h2>
+   <h2 id="checksTitle">What “Checked” means on CALVORA Property Solutions</h2>
    <p>A home gets the Checked badge only after our team has recorded all four checks below. Nothing goes live before that.</p>
   </div>
   <div>
@@ -126,7 +126,7 @@
   </div>
   <div class="join-owners">
    <h2>Owners: let a checked agent list your home</h2>
-   <p>You do not need an account. Send us the details, or ask a Calvora Estate &amp; Properties agent near you.</p>
+   <p>You do not need an account. Send us the details, or ask a CALVORA Property Solutions agent near you.</p>
    <a class="btn alt" href="owners.html">How owners list a home</a>
   </div>
  </div>
@@ -241,7 +241,7 @@ function populateStateOptions(){
 }
 function propertyImage(p){ return (p.photos&&p.photos[0])||PLACEHOLDER; }
 function badgeHTML(p){
- return p._verified ? `<span class="badge">${ic("shield")}Checked by Calvora Estate &amp; Properties</span>` : `<span class="badge no">${ic("open")}Not yet verified</span>`;
+ return p._verified ? `<span class="badge">${ic("shield")}Checked by CALVORA Property Solutions</span>` : `<span class="badge no">${ic("open")}Not yet verified</span>`;
 }
 function videoHTML(p){
  const u=normalise(p.Video); if(!u)return "";
@@ -408,7 +408,7 @@ function openDetails(index,list=visibleProperties){
  const loc=[normalise(p["Area / Neighbourhood"]),normalise(p.State)].filter(Boolean).join(", ")||"Location to be confirmed";
  const agent=normalise(p["Agent Name"])||"Property contact";
  const phone=normalise(p["Agent Phone (WhatsApp)"]).replace(/\.0$/,"");
- const wa=whatsappUrl(isLand?`Hello ${agent}, I am interested in "${name}" on Calvora Estate & Properties. Please confirm it is available, the price, the land documents, and a time to visit the site.`:`Hello ${agent}, I am interested in "${name}" on Calvora Estate & Properties. Please confirm it is available, the full move-in cost, and a time to inspect.`,phone);
+ const wa=whatsappUrl(isLand?`Hello ${agent}, I am interested in "${name}" on CALVORA Property Solutions. Please confirm it is available, the price, the land documents, and a time to visit the site.`:`Hello ${agent}, I am interested in "${name}" on CALVORA Property Solutions. Please confirm it is available, the full move-in cost, and a time to inspect.`,phone);
  gal={list:(p.photos&&p.photos.length)?p.photos:[PLACEHOLDER],i:0,name};
  const multi=gal.list.length>1;
  const rows=isLand?[["Price",p["Sale Price (₦)"]]]:[["Rent for the year",p["Rent Per Year (₦)"]],["Agency fee",p["Agency Fee (₦)"]],["Legal fee",p["Legal Fee (₦)"]],["Caution deposit",p["Caution Fee (₦)"]]].filter(([,v])=>normalise(v));
@@ -489,7 +489,7 @@ document.getElementById("reportForm").addEventListener("submit",e=>{
  e.preventDefault();
  const f=[["Reporter name","reporterName"],["Reporter contact","reporterPhone"],["Agent or listing","reportAgentName"],["Agent phone","reportAgentPhone"],["What happened","reportDetails"]];
  const vals=f.map(([label,id])=>`${label}: ${normalise(document.getElementById(id).value)||"Not provided"}`);
- const url=whatsappUrl(`Hello Calvora Estate & Properties,\n\nI want to report a concern.\n\n${vals.join("\n")}\n\nPlease tell me the next steps.`);
+ const url=whatsappUrl(`Hello CALVORA Property Solutions,\n\nI want to report a concern.\n\n${vals.join("\n")}\n\nPlease tell me the next steps.`);
  const msg=document.getElementById("reportMessage");
  msg.textContent="Your message is ready. WhatsApp will open so you can review and send it. Nothing is sent until you press send.";msg.classList.add("show");
  if(url!=="#")window.open(url,"_blank","noopener,noreferrer");
