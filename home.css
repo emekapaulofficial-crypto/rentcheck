@@ -13,11 +13,11 @@
 
 :root{
   --display:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --brand:#0A4D3A;
-  --brand-dark:#073b2c;
-  --leaf:#2a9d4a;
-  --gold:#f2c94c;
-  --paper:#f7f6f0;
+  --brand:#10233f;
+  --brand-dark:#0b1a30;
+  --leaf:#176b4b;
+  --gold:#b8dfc5;
+  --paper:#f5f7f8;
   --shadow-sm:0 1px 2px rgba(16,45,38,.06),0 2px 8px rgba(16,45,38,.05);
   --shadow-md:0 2px 4px rgba(16,45,38,.06),0 12px 32px rgba(16,45,38,.10);
 }
@@ -41,7 +41,7 @@ i[data-i]{display:inline-block;width:1.15em;height:1.15em}
 .btn.alt{background:#fff;color:var(--brand)}
 .btn.alt:hover{background:#eef4f0;border-color:var(--brand)}
 .btn.small{padding:10px 14px;font-size:.92rem;border-radius:10px}
-.btn.mark{background:var(--lime);border-color:var(--lime);color:#0b3326}
+.btn.mark{background:var(--lime);border-color:var(--lime);color:#10233f}
 .btn.mark:hover{background:#e6f89a;border-color:#e6f89a}
 .btn.ghost-light{background:transparent;border-color:rgba(255,255,255,.55);color:#fff}
 .btn.ghost-light:hover{background:rgba(255,255,255,.12);border-color:#fff}
@@ -52,7 +52,7 @@ button.link{background:none;border:0;padding:6px 2px;font:inherit;font-weight:60
 .home-hero{background:radial-gradient(1100px 420px at 85% -10%,#e7f2c8 0,rgba(231,242,200,0) 60%),var(--paper);padding:56px 0 64px;border-bottom:1px solid var(--line)}
 .home-hero .wrap,.home .wrap{width:min(1120px,calc(100% - 32px))}
 .hh{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:48px;align-items:center}
-.hh-copy h1{font-size:clamp(2.35rem,5.4vw,4.1rem);line-height:1.04;letter-spacing:-.04em;font-weight:700;margin:0 0 18px;max-width:14ch;color:#0c2f25}
+.hh-copy h1{font-size:clamp(2.35rem,5.4vw,4.1rem);line-height:1.04;letter-spacing:-.04em;font-weight:700;margin:0 0 18px;max-width:14ch;color:#10233f}
 .hh-copy .lead{font-size:1.15rem;line-height:1.6;color:var(--muted);max-width:34em;margin:0 0 18px}
 .hh-links{margin:0;color:var(--muted);font-size:.98rem}
 .hh-links a{color:var(--brand);font-weight:650;text-underline-offset:3px}
