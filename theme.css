@@ -1,0 +1,9 @@
+/* CALVORA shared light/dark theme tokens. */
+:root{color-scheme:light;--page:#fff;--surface:#fff;--text:#172235;--muted:#647184;--border:#e1e6ec}
+:root[data-theme="dark"]{color-scheme:dark;--page:#0c1422;--surface:#142137;--text:#edf2f8;--muted:#b2bfd0;--border:#2a3b54}
+:root[data-theme="dark"] body{background:var(--page);color:var(--text)}
+:root[data-theme="dark"] .panel,:root[data-theme="dark"] .finder,:root[data-theme="dark"] .home-card,:root[data-theme="dark"] .specimen,:root[data-theme="dark"] .rcn-head{background:var(--surface);color:var(--text);border-color:var(--border)}
+:root[data-theme="dark"] .hero,:root[data-theme="dark"] .home-hero,:root[data-theme="dark"] .checks,:root[data-theme="dark"] .process{background:#101c30;color:var(--text)}
+:root[data-theme="dark"] p,:root[data-theme="dark"] .lead,:root[data-theme="dark"] .muted,:root[data-theme="dark"] .result-count{color:var(--muted)}
+:root[data-theme="dark"] input,:root[data-theme="dark"] select,:root[data-theme="dark"] textarea{background:#0c1422;color:var(--text);border-color:var(--border)}
+:root[data-theme="dark"] .rcn-links{background:var(--surface)}
