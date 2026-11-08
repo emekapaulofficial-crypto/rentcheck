@@ -1,13 +1,17 @@
-# RentCheck NG v3
+# CALVORA Property Solutions
 
-What changed from the version you sent:
-- **Agent portal** (`agent.html`): create account, log in, forgot password, apply, then add properties.
-- **Up to 30 photos per listing** with drag-and-drop, automatic shrinking, reorder, cover photo, and edit later.
-- **Private owner details**: relationship, name, phone, email, address and proof documents. Visible only to the agent and staff.
-- **Admin queue** (`admin.html`): photo thumbnails, owner details and proof documents beside the verification checks.
-- **Homepage** now reads approved listings from Supabase (the old SheetDB feed and stock photos are gone), shows all 36 states + FCT, a photo gallery, "Checked by RentCheck NG" or "Not yet verified", and a "Show more" button.
-- **Navigation**: one menu (Find a home, List your property, Become an agent, Trust & safety, Contact, Agent login) on every page, and a new `agents.html` page.
-- Removed the fake dashboard previews and the duplicate `Agent.html` / `Admin.html` files. All file names are lowercase.
-- Fixed a bug where saving a listing with a blank fee field failed.
+**Property. Trust. Opportunity.**
 
-Start with `SETUP.md`.
+A property platform focused on Ado-Ekiti, Ekiti State, Nigeria, with separate journeys for rental homes, houses for sale and land for sale.
+
+## Working principles
+- Clear property information and transparent known fees.
+- Agent onboarding, property review and documented verification status.
+- Keep owner identity and evidence private to authorised staff.
+- Never claim a property is verified unless the checks are completed and recorded.
+- Preserve the existing payment and escrow implementation; do not publish unconfirmed bank details.
+- Access Bank is the selected bank; account name and account number remain pending confirmation.
+- Digital agent identity only. No agent ID-card printing feature.
+
+## Development
+Work is being prepared on the `calvora-professional-upgrade` branch. Confirm the live Supabase project, deployment target and payment configuration before production changes.
